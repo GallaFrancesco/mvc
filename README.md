@@ -40,4 +40,4 @@ mvc
 ```
 
 Note that an instance of MPD must be running for mvc to work, otherwise the fifo file doesn't exist.
-
+Also (shame on me) the only way to stop it from running is to kill it abruptly (Ctrl+c).
