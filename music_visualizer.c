@@ -27,9 +27,14 @@ main(int argc, char *argv[])
 	}
 	getmaxyx(stdscr, maxR, maxC);
 	curs_set(0);
-	
+ 	cbreak();
+	nodelay(stdscr, TRUE);
+
 	while(read(fifo, (uint16_t*)buf, 2*N_SAMPLES) != 0){
-		
+		if(wgetch(stdscr)=='q'){
+			break;	
+		}
+
 		fftBuf = fast_fft(N_SAMPLES, (uint16_t*)buf);
 		fftAvg = average_signal(fftBuf, N_SAMPLES, maxC, &avgLen);	
 		free(fftBuf);
@@ -46,11 +51,11 @@ main(int argc, char *argv[])
 			print_col(i, fftAvg[i], maxR);
 		}
 		refresh();
+		free(fftAvg);
 	}
 	close(fifo);
-	delwin(mainwin);
 	endwin();
+	delwin(mainwin);
 
 	return 0;
-
 }
