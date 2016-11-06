@@ -26,9 +26,7 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	getmaxyx(stdscr, maxR, maxC);
-	color_set(2, NULL);
-	mvprintw(maxR/2, maxC/2, "%d %d\n", maxR, maxC);
-	refresh();
+	curs_set(0);
 	
 	while(read(fifo, (uint16_t*)buf, 2*N_SAMPLES) != 0){
 		
@@ -36,11 +34,18 @@ main(int argc, char *argv[])
 		fftAvg = average_signal(fftBuf, N_SAMPLES, maxC, &avgLen);	
 		free(fftBuf);
 
+		erase();
 		for(i=0; i<avgLen; i++){
+			if(i<avgLen/3){
+				color_set(1, NULL);
+			} else if(i>avgLen*2/3){
+				color_set(2, NULL);	
+			} else {
+				color_set(3, NULL);
+			}
 			print_col(i, fftAvg[i], maxR);
 		}
 		refresh();
-		clear();
 	}
 	close(fifo);
 	delwin(mainwin);

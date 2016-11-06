@@ -124,7 +124,7 @@ average_signal(unsigned int *fftBuf, int inLen, int maxC, int *avgLen)
 		for(j=0; j<(inLen/(2*(*avgLen))); j++){
 			avg += fftBuf[i+j];  		
 		}
-		fftAvg[k] = avg/(inLen/(2*(*avgLen))) - 80;
+		fftAvg[k] = avg/(inLen/(2*(*avgLen))) - 90; //the 90 is a correction for the display
 		k++;
 	}
 	return fftAvg;
