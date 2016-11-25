@@ -21,7 +21,8 @@ main(int argc, char *argv[])
 	uint16_t buf[N_SAMPLES];
 	unsigned int *fftBuf, *fftAvg;
 
-	fifo = open("/tmp/mpd.fifo", O_RDONLY);
+	while((fifo = open("/tmp/mpd.fifo", O_RDONLY)) == -1);
+
 
 	if((mainwin = curses_init()) == NULL){
 		exit(EXIT_FAILURE);
@@ -53,11 +54,8 @@ main(int argc, char *argv[])
 				/*color_set(3, NULL);*/
 			/*}*/
 			for(j=0; j<1; j++){
-				if(fftAvg[i] > maxR){
-					fftAvg[i] == maxR;
-				}
-				if(fftAvg[i] < 0){
-					fftAvg[i] == 0;
+				if(fftAvg[i] > maxR || fftAvg[i] < 0){
+					fftAvg[i] = 1;
 				}
 				print_col(i+j-correction, fftAvg[i], maxR);
 			}
