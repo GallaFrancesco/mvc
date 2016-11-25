@@ -35,6 +35,7 @@ print_col(int col, int length, int maxR)
 	int row, l;
 	 
 	l = maxR - length;
+	/*l -= 5;*/
 	for(row=maxR; row>l; row--){
 		mvaddch(row, col, SHARP);
 	}

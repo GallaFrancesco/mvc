@@ -1,6 +1,6 @@
 #include <curses.h>
 
-#define SHARP '#'
+#define SHARP '|'
 
 void init_color_pairs();
 WINDOW* curses_init();
