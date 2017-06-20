@@ -1,7 +1,7 @@
 ALL = fft.c utils_curses.c music_visualizer.c 
 LOCPATH = ./bin
 INSTALLPATH = /usr/local
-LFLAGS =  -lm -lcurses
+LFLAGS =  -lm -lcurses -ldl -ltinfo
 DEBFLAGS = -g -Wall 
 NAME = mvc
 

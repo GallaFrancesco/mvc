@@ -33,11 +33,13 @@ sudo make install
 
 ## Usage
 
-Simply run:
+Simply run in your terminal:
 
 ```
-mvc
+mvc [color]
 ```
-The keypress 'q' at anytime quits the program and restores the terminal.
+[color] is the number of a color in your terminal colorscheme.
+
+The keypress '**q**'' at anytime **quits** the program and restores the terminal.
 
 Note that an instance of MPD must be running for mvc to work, otherwise the fifo file doesn't exist.

@@ -8,6 +8,7 @@
 #include "utils_curses.h"
 #include "time.h"
 
+#define MPD_FIFO "/tmp/mpd.fifo"
 /*FREQ		44100*/
 #define N_SAMPLES 	512
 /*FPS		FREQ/N_SAMPLES*/
@@ -21,7 +22,12 @@ main(int argc, char *argv[])
 	uint16_t buf[N_SAMPLES];
 	unsigned int *fftBuf, *fftAvg;
 
-	while((fifo = open("/tmp/mpd.fifo", O_RDONLY)) == -1);
+	while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
+
+	if (argc != 2){
+		fprintf(stderr, "Usage: mvc [color number]\n");
+		exit(EXIT_FAILURE);
+	}
 
 
 	if((mainwin = curses_init()) == NULL){
@@ -34,9 +40,8 @@ main(int argc, char *argv[])
 
 	while(read(fifo, (uint16_t*)buf, 2*N_SAMPLES) != 0){
 		/*usleep(45000);*/
-		
 		if(wgetch(stdscr)=='q'){
-			break;	
+			break;
 		}
 
 		fftBuf = fast_fft(N_SAMPLES, (uint16_t*)buf);
@@ -46,13 +51,7 @@ main(int argc, char *argv[])
 		erase();
 		correction = 0;
 		for(i=correction; i<maxC; i=i+1){
-			/*if(i<avgLen/3){*/
-			color_set(4, NULL);
-			/*} else if(i>avgLen*2/3){*/
-				/*color_set(2, NULL);	*/
-			/*} else {*/
-				/*color_set(3, NULL);*/
-			/*}*/
+			color_set(atoi(argv[1]), NULL);
 			for(j=0; j<1; j++){
 				if(fftAvg[i] > maxR || fftAvg[i] < 0){
 					fftAvg[i] = 1;
