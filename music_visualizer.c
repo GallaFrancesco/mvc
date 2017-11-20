@@ -10,7 +10,7 @@
 
 #define MPD_FIFO "/tmp/mpd.fifo"
 /*FREQ		44100*/
-#define N_SAMPLES 	512
+#define N_SAMPLES 1024
 /*FPS		FREQ/N_SAMPLES*/
 
 int
@@ -18,7 +18,7 @@ main(int argc, char *argv[])
 {
 	int fifo, i, j;
 	WINDOW *mainwin;
-	int maxR, maxC, avgLen, correction; //curses
+	int maxR, maxC, correction; //curses
 	uint16_t buf[N_SAMPLES];
 	unsigned int *fftBuf, *fftAvg;
 
@@ -45,19 +45,18 @@ main(int argc, char *argv[])
 		}
 
 		fftBuf = fast_fft(N_SAMPLES, (uint16_t*)buf);
-		fftAvg = average_signal(fftBuf, N_SAMPLES, maxC, &avgLen);	
+		fftAvg = average_signal(fftBuf, N_SAMPLES, maxC);	
 		free(fftBuf);
 
 		erase();
 		correction = 0;
-		for(i=correction; i<maxC; i=i+1){
-			color_set(atoi(argv[1]), NULL);
-			for(j=0; j<1; j++){
-				if(fftAvg[i] > maxR || fftAvg[i] < 0){
-					fftAvg[i] = 1;
-				}
-				print_col(i+j-correction, fftAvg[i], maxR);
+		for(i=correction; i<maxC; i=i+2){
+			/*color_set(atoi(argv[1]), NULL);*/
+			if(fftAvg[i] > maxR || fftAvg[i] < 0){
+				fftAvg[i] = 1;
 			}
+			print_col(i-correction, fftAvg[i], maxR, atoi(argv[1]));
+			/*print_col(i-correction+1, fftAvg[i], maxR);*/
 		}
 		refresh();
 		free(fftAvg);

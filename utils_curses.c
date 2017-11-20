@@ -13,7 +13,7 @@ init_color_pairs()
         init_pair(4, COLOR_BLUE,    -1);
         init_pair(5, COLOR_CYAN,    -1);
         init_pair(6, COLOR_MAGENTA, -1);
-        init_pair(7, COLOR_WHITE,   -1);		
+        init_pair(8, COLOR_WHITE,   -1);		
 	}
 }
 
@@ -30,12 +30,17 @@ curses_init()
 }
 
 void
-print_col(int col, int length, int maxR)
+print_col(int col, int l, int maxR, int color)
 {
-	int row, l; 
-	l = maxR - length;
-	for(row=maxR; row>l; row--){
-		mvaddch(row, col, SHARP);
+	int row;
+	int changeCol;
+	for(row=maxR; row>=0; row--){
+		color++;
+		changeCol = color % 6;
+		if (!(row > l && row < maxR-l/3)) { // center of the screen
+			color_set(changeCol, NULL);
+			mvaddch(row, col, SHARP);
+		}
 	}
 }
 

@@ -102,23 +102,18 @@ fast_fft(int inLen, uint16_t *sig)
 	}
 
 	free(outputComponents);
-	
+
 	return fftSig;	
 }
 
 unsigned int*
-average_signal(unsigned int *fftBuf, int inLen, int maxC, int *avgLen)
+average_signal(unsigned int *fftBuf, int inLen, int maxC)
 {
 	unsigned int* fftAvg = malloc(inLen*sizeof(unsigned int));
 	int i, j, step, k=0;
 	unsigned int avg;
 
-	if(maxC < 200){
-		*avgLen = 128;
-	} else {
-		*avgLen = 512;
-	}
-	step = inLen/(2*(*avgLen));
+	step = inLen/128;
 	for(i=0; i<inLen; i=i+step){
 		avg = 0;
 		for(j=0; j<step; j++){
