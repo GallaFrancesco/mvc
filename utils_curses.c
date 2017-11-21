@@ -37,9 +37,13 @@ print_col(int col, int l, int maxR, int color)
 	for(row=maxR; row>=0; row--){
 		color++;
 		changeCol = color % 6;
-		if (!(row > l && row < maxR-l/3)) { // center of the screen
+		if ((row > l && row < maxR-l/3)) { // center of the screen
 			color_set(changeCol, NULL);
 			mvaddch(row, col, SHARP);
+		} else {
+			color_set(changeCol, NULL);
+			mvaddch(row, col, HEAVY);
+
 		}
 	}
 }
