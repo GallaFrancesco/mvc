@@ -1,6 +1,7 @@
 #include "utils_curses.h"
 
-
+// initialize color pairs
+// used in print_col
 void
 init_color_pairs()
 {
@@ -17,6 +18,8 @@ init_color_pairs()
 	}
 }
 
+// returns a WINDOW object
+// called by main() on startup
 WINDOW*
 curses_init()
 {
@@ -29,11 +32,15 @@ curses_init()
 	return w;
 }
 
+// print a column to screen
+// while doing so, perform a rotation of the color
+// modify here to change color output
 void
-print_col(int col, int l, int maxR, int color)
+print_col(int col, int l, int maxR)
 {
-	int row;
-	int changeCol;
+	int row, changeCol;
+	int color = 5;
+
 	for(row=maxR; row>=0; row--){
 		color++;
 		changeCol = color % 6;
@@ -43,7 +50,6 @@ print_col(int col, int l, int maxR, int color)
 		} else {
 			color_set(changeCol, NULL);
 			mvaddch(row, col, HEAVY);
-
 		}
 	}
 }

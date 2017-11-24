@@ -1,8 +1,9 @@
-ALL = fft.c utils_curses.c music_visualizer.c 
+SRC = src/fft.c src/utils_curses.c src/music_visualizer.c src/alsa_fifo.c
+ALL = $(SRC)
 LOCPATH = ./bin
 INSTALLPATH = /usr/local
-LFLAGS =  -lm -lcurses -ldl -ltinfo
-DEBFLAGS = -g -Wall 
+LFLAGS =  -lm -lcurses -ldl -ltinfo -lasound
+DEBFLAGS = -g -Wall
 NAME = mvc
 
 all:
@@ -22,7 +23,3 @@ install:
 	cp $(LOCPATH)/$(NAME) $(INSTALLPATH)/bin/$(NAME)
 uninstall:
 	rm $(INSTALLPATH)/bin/$(NAME)
-
-
-
-	

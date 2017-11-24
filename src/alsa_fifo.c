@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <alsa/asoundlib.h>
+#include "alsa_fifo.h"
 
 void
 read_alsa_fifo (char* pcm_name)
@@ -13,7 +11,7 @@ read_alsa_fifo (char* pcm_name)
 
 	if ((err = snd_pcm_open (&capture_handle, pcm_name, SND_PCM_STREAM_CAPTURE, 0)) < 0) {
 		fprintf (stderr, "cannot open audio device %s (%s)\n", 
-			 argv[1],
+			 pcm_name,
 			 snd_strerror (err));
 		exit (1);
 	}
