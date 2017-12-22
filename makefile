@@ -1,8 +1,8 @@
-SRC = src/fft.c src/utils_curses.c src/music_visualizer.c src/alsa_fifo.c
+SRC = src/fft.c src/utils_curses.c src/music_visualizer.c #src/alsa_fifo.c
 ALL = $(SRC)
 LOCPATH = ./bin
 INSTALLPATH = /usr/local
-LFLAGS =  -lm -lcurses -ldl -ltinfo -lasound
+LFLAGS =  -lm -lcurses -ldl -ltinfo #-lasound
 DEBFLAGS = -g -Wall
 NAME = mvc
 

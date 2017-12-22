@@ -66,7 +66,7 @@ process_alsa (int fifo)
 int
 main(int argc, char *argv[])
 {
-	int fifo, i, j;
+	int fifo;
 	WINDOW *mainwin;
 
 	while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
