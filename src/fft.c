@@ -23,18 +23,17 @@ cplx *_fast_ft(cplx *compArray, int len)
 	cplx omegaN, omega;
 	cplx *evenA, *oddA, *transformedA;
 	int i;
-	
+
 	/*termination*/
 	if(len == 1){
 		return compArray;
 	}
-	
+
 	omega = 1;
 	omegaN = cexp(2*PI*I/len); //the fourier coefficient
-	
-	evenA = _fast_ft(split_array(compArray, len, EVEN), len/2);
+    evenA = _fast_ft(split_array(compArray, len, EVEN), len/2);
 	oddA = _fast_ft(split_array(compArray, len, ODD), len/2);
-	
+
 	/*the final array*/
 	transformedA = malloc(len*sizeof(cplx));
 
@@ -65,7 +64,7 @@ amplitude(cplx c)
 {
 	double sq;
 	unsigned int res;
-	
+
 	/*compute amplitude*/
 	sq = sqrt(pow(creal(c), 2) + pow(cimag(c), 2));
 	res = round(20*log10(sq)); // dB scale
@@ -85,14 +84,14 @@ fast_fft(int inLen, uint16_t *sig)
 		exit(EXIT_FAILURE);
 	}
 	inputComponents = (cplx*)malloc((inLen)*sizeof(cplx));
-	
+
 	for(i=1; i<inLen; i++){
 		inputComponents[i] = sig[i];
 	}
-	
+
 	/*fprintf(stdout, "in:\n");*/
 	/*print_components(inputComponents, inLen);*/
-	
+
 	outputComponents = _fast_ft(inputComponents, inLen);
 	fftSig = calloc(inLen, sizeof(unsigned int));	
 	/*fprintf(stdout, "out:\n");*/
@@ -107,13 +106,13 @@ fast_fft(int inLen, uint16_t *sig)
 }
 
 unsigned int*
-average_signal(unsigned int *fftBuf, int inLen, int maxC)
+average_signal(unsigned int *fftBuf, int inLen, int max)
 {
 	unsigned int* fftAvg = malloc(inLen*sizeof(unsigned int));
 	int i, j, step, k=0;
 	unsigned int avg;
 
-	step = inLen/128;
+	step = inLen/(max % 128);
 	for(i=0; i<inLen; i=i+step){
 		avg = 0;
 		for(j=0; j<step; j++){
