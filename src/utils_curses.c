@@ -145,7 +145,10 @@ print_mpd_status(STATUS* status, const int maxC, const int row)
     }
     mvaddch(row, center-2+i, ' ');
     mvaddch(row+4, center-2+i, ' ');
+    mvaddch(row, center-3, ' ');
+    mvaddch(row+4, center-3, ' ');
     for (i=0; i<3; i++){
+        mvaddch(row+i+1, center-3, ' ');
         mvaddch(row+i+1, center-1, '|');
         mvaddch(row+i+1, center-2, '|');
         mvaddch(row+i+1, center+maxlen, '|');
