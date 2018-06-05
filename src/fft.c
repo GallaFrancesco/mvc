@@ -112,7 +112,7 @@ average_signal(unsigned int *fftBuf, int inLen, int max)
 	int i, j, step, k=0;
 	unsigned int avg;
 
-	step = inLen/(max % 128);
+	step = inLen/(max);
 	for(i=0; i<inLen; i=i+step){
 		avg = 0;
 		for(j=0; j<step; j++){

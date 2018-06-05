@@ -26,9 +26,15 @@ void
 get_mpd_status()
 {
     signal(SIGALRM, SIG_IGN);
+    if(status) {
+        free_status_st(status);
+    }
+
     struct mpd_connection* session = open_connection();
-    status = get_current_status(session);
-    close_connection(session);
+    if(session) {
+        status = get_current_status(session);
+        close_connection(session);
+    }
     signal(SIGALRM, get_mpd_status);
     alarm(1);
 }
@@ -59,7 +65,7 @@ void process_mpd (int fifo) {
 		erase();
 
 		// correction can be used to exclude certain frequencies
-		correction = 2;
+		correction = maxC/16;
 		int i;
         for(i=correction; i<maxC+correction; i=i+2){
             // check boundaries of the signals respect the boundaries of the screen

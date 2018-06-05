@@ -103,11 +103,13 @@ print_mpd_status(STATUS* status, const int maxC, const int row)
         if (strlen(status->state)+18 > maxlen){
             maxlen=strlen(status->state)+18;
         }
-        maxlen = strlen(song->artist) + strlen(song->title) + 5;
+        if (strlen(song->album + 3) > maxlen) {
+            maxlen=strlen(song->album) + 3;
+        }
         center = maxC/2 - (maxlen)/2; 
     }
-
-    color_set(1, NULL);
+    srand(song->duration_sec);
+    color_set(rand() % 7, NULL);
     for (i=0; i<maxlen+4; i++) {
         for(j=0; j<3; j++) {
             mvaddch(row+1+j, center-1+i, ' ');
@@ -124,10 +126,6 @@ print_mpd_status(STATUS* status, const int maxC, const int row)
         }
         if(song->album != NULL){
             mvprintw(row+2, center+1, "%s", song->album);
-            nullFlag = true;
-        } else {
-            nullFlag = false;
-            // even if only album field is missing, the filesystem name will be printed
         }
         if (nullFlag == false) {
             // title, artist, album fields are missing, will print filesystem name
