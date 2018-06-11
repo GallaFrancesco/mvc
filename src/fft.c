@@ -1,5 +1,4 @@
 #include "fft.h"
-#include <mpd/client.h>
 
 /* if flag is EVEN (0), it takes only the even elements
  * otherwise if flag is ODD (1) it takes only the odd ones
@@ -17,8 +16,7 @@ cplx *split_array(cplx *a, int len, int flag)
 }
 
 /* recursively compute the fft on an array of complex numbers
- * this algorithm involves splitting the array in two parts each recursion
- * to be more efficient 
+ * splitting the array in two parts each recursion
  */
 cplx *_fast_ft(cplx *compArray, int len)
 {
