@@ -44,48 +44,28 @@ print_col(int col, int l, const int maxR, const int maxC)
 	int row, changeCol;
 	int color = 5;
 
-	for(row=maxR; row>=0; row--){
+	/*for(row=maxR; row>=0; row--){*/
+    for (row=0; row<maxR; row++){
         if (col < maxC) {
             color++;
             changeCol = color % 6;
+            color_set(changeCol, NULL);
             if ((row > l && row < maxR-l/3)) { // center of the screen
-                color_set(changeCol, NULL);
-                mvaddch(row, col, SHARP);
+                mvaddch(row, col, FULL);
             } else {
-                color_set(changeCol, NULL);
-                mvaddch(row, col, HEAVY);
+                mvaddch(row, col, EMPTY);
             }
         }
 	}
 }
 
-void
-print_row(int row, int l, const int maxR, const int maxC)
-{
-	int col, changeCol;
-	int color = 5;
-
-	for(col=maxC; col>=0; col--){
-        if (row < maxR) {
-            color++;
-            changeCol = color % 6;
-            if ((col > l && col < maxR-l/3)) { // center of the screen
-                color_set(changeCol, NULL);
-                mvaddch(row, col, SHARP);
-            } else {
-                color_set(changeCol, NULL);
-                mvaddch(col, col, HEAVY);
-            }
-        }
-	}
-}
 
 /* prints a STATUS structure to stdout */
 void 
 print_mpd_status(STATUS* status, const int maxC, const int row)
 {
     SONG* song = NULL;
-    bool CRflag = false, nullFlag = false;
+    bool nullFlag = false;
     int i,j;
 
     if(status == NULL){
@@ -95,6 +75,9 @@ print_mpd_status(STATUS* status, const int maxC, const int row)
     song = status->song;
     int maxlen;
     int center;
+    if (song == NULL) {
+        return;
+    }
     if (song->artist == NULL) {
         maxlen = strlen(song->uri) + 3;
         center = maxC/2 - maxlen/2;

@@ -1,4 +1,6 @@
 #include "fft.h"
+#include <mpd/client.h>
+
 /* if flag is EVEN (0), it takes only the even elements
  * otherwise if flag is ODD (1) it takes only the odd ones
  */
@@ -60,24 +62,26 @@ print_components(cplx *a, int len)
 }
 
 unsigned int
-amplitude(cplx c)
+amplitude(cplx c, unsigned int n)
 {
-	double sq;
-	unsigned int res;
+    // compute a normalized amplitude (actually power spectrum, since it's not squared
+    // normalize on n (N_SAMPLES)
+	double sq = 0;
+	unsigned int res = 0;
 
 	/*compute amplitude*/
-	sq = sqrt(pow(creal(c), 2) + pow(cimag(c), 2));
+    sq = sqrt(pow(creal(c)/n, 2) + pow(cimag(c)/n, 2));
 	res = round(20*log10(sq)); // dB scale
+    /*fprintf(stderr, "%f - %d\n", sq, res);*/
 	return res;
 }
 
-unsigned int* 
-fast_fft(int inLen, uint16_t *sig)
+void
+fast_fft(int inLen, uint16_t *sig, unsigned int *fftSig)
 {
 	int i;
 	cplx *inputComponents;
 	cplx *outputComponents;
-	unsigned int *fftSig;
 
 	if(inLen % 2 != 0){
 		fprintf(stderr, "Note that the length of the array MUST be a power of 2.");
@@ -89,26 +93,17 @@ fast_fft(int inLen, uint16_t *sig)
 		inputComponents[i] = sig[i];
 	}
 
-	/*fprintf(stdout, "in:\n");*/
-	/*print_components(inputComponents, inLen);*/
-
 	outputComponents = _fast_ft(inputComponents, inLen);
-	fftSig = calloc(inLen, sizeof(unsigned int));	
-	/*fprintf(stdout, "out:\n");*/
-	/*print_components(outputComponents, inLen);*/
 	for(i=0; i<inLen; i++){
-		fftSig[i] = amplitude(outputComponents[i]);
+		fftSig[i] = amplitude(outputComponents[i], inLen);
 	}
 
 	free(outputComponents);
-
-	return fftSig;	
 }
 
-unsigned int*
-average_signal(unsigned int *fftBuf, int inLen, int max)
+void
+average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 {
-	unsigned int* fftAvg = malloc(inLen*sizeof(unsigned int));
 	int i, j, step, k=0;
 	unsigned int avg;
 
@@ -118,13 +113,6 @@ average_signal(unsigned int *fftBuf, int inLen, int max)
 		for(j=0; j<step; j++){
 			avg += fftBuf[i+j];	
 		}
-		fftAvg[k] = avg/step - 80; //the 80 is a correction for the display
-		k++;
+		fftAvg[k++] = avg/step; //the 80 is a correction for the display
 	}
-	return fftAvg;
 }
-
-
-
-
-

@@ -3,8 +3,8 @@
 #include "utils_mpd.h"
 
 // used while printing
-#define SHARP 'x'
-#define HEAVY '.'
+#define FULL 'X'
+#define EMPTY '.'
 
 void init_color_pairs();
 WINDOW* curses_init();

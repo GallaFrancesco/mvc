@@ -3,10 +3,14 @@
 #include <stdlib.h>		// exit
 #include <unistd.h>		// read
 #include <sys/stat.h>	// open	
+#include <sys/time.h>   // timeout
+#include <sys/types.h>
 #include <fcntl.h>		// open
 #include <stdint.h>		// uint16_t
 #include <string.h>     // strcmp
 #include <signal.h>
+#include <stdbool.h>
+#include <stdatomic.h>
 
 #include "fft.h"		// fast fourier transform
 #include "utils_curses.h"
@@ -14,104 +18,138 @@
 #include "utils_mpd.h"
 
 #define MPD_FIFO "/tmp/mpd.fifo"
-/*FREQ		44100*/
 #define N_SAMPLES 1024
-/*FPS		FREQ/N_SAMPLES*/
+#define MAXEVENTS 1
 
-static int maxR;
-static int maxC;
-static STATUS* status;
+static _Atomic bool getstatus = true;
+static int maxR = 0;
+static int maxC = 0;
 
 void
-get_mpd_status()
+get_mpd_status(struct mpd_connection* session, STATUS* status)
 {
-    signal(SIGALRM, SIG_IGN);
-    if(status) {
-        free_status_st(status);
+    if(!session) {
+        session = open_connection();
     }
-
-    struct mpd_connection* session = open_connection();
-    if(session) {
-        status = get_current_status(session);
-        close_connection(session);
-    }
-    signal(SIGALRM, get_mpd_status);
-    alarm(1);
+    status = get_current_status(session);
 }
 
-void process_mpd (int fifo) {
-	uint16_t buf[N_SAMPLES];
-	unsigned int *fftBuf, *fftAvg;
-	int correction; //curses
-    struct mpd_connection* session = open_connection();
-    get_mpd_status();
+void
+alarm_status()
+{
+    getstatus = true;
+}
+
+void
+process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg) {
+    // performs a Fourier Transform of the buffer data
+    fast_fft(N_SAMPLES, (uint16_t*)buf, fftBuf);
+
+    // computes an average of the signals in fftBuf
+    // based on the number of columns of the screen
+    average_signal(fftBuf, N_SAMPLES, maxC, fftAvg);
+}
+
+void
+print_visual(unsigned int* fftBuf, unsigned int* fftAvg)
+{
+    int correction = maxC/16; //center terminal
+    int i;
+
+    // main loop to print column by column
+    for(i=correction; i<maxC+correction; i++){
+        fftAvg[i] -= 20; // correction for display
+
+        // check boundaries (respect the boundaries of the screen, otherwise segvs)
+        // if they don't, setting them to 1 is a safety measure
+        if(fftAvg[i] > maxR || fftAvg[i] < 0){
+            fftAvg[i] = 1;
+        }
+        // print the column fftAvg[i]
+        print_col(i-correction, fftAvg[i], maxR, maxC);
+    }
+}
+
+void
+main_event()
+{
+    uint16_t buf[N_SAMPLES];
+    int fifo;
+    struct mpd_connection *session;
+    bool over = false;
+    STATUS* status = NULL;
+    fd_set set;
+    int ret;
+
+    // open mpd fifo
+    while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
+    // add it to select() set
+    FD_ZERO(&set);
+    FD_SET(fifo, &set);
+
+    // allocate buffers used
+    unsigned int* fftBuf= (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
+    unsigned int* fftAvg = (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
+    /*// set the result buffer to 0s*/
+    memset(fftBuf, 0, N_SAMPLES*sizeof(unsigned int));
+    memset(fftAvg, 0, N_SAMPLES*sizeof(unsigned int));
+
+    // open connection to mpd and set alarm to refresh status
+    session = open_connection();
+
+    signal(SIGALRM, alarm_status);
     alarm(1);
 
-	while(read(fifo, (uint16_t*)buf, 2*N_SAMPLES) != 0){
-		// close on keypress 'q'
-		if(wgetch(stdscr)=='q'){
-			break;
-		}
-
-		// performs a Fourier Transform of the buffer data
-		fftBuf = fast_fft(N_SAMPLES, (uint16_t*)buf);
-
-		// computes an average of the signals in fftBuf
-		// based on the number of columns of the screen
-		fftAvg = average_signal(fftBuf, N_SAMPLES, maxC);	
-		free(fftBuf);
-
-		// clear the screen
-		erase();
-
-		// correction can be used to exclude certain frequencies
-		correction = maxC/16;
-		int i;
-        for(i=correction; i<maxC+correction; i=i+2){
-            // check boundaries of the signals respect the boundaries of the screen
-            // if they don't, setting them to 1 is a safety measure
-            // 0 and maxR can give segmentation errors on curses printing
-            if(fftAvg[i] > maxR || fftAvg[i] < 0){
-                fftAvg[i] = 1;
-            }
-            // print the column fftAvg[i]
-            print_col(i-correction, fftAvg[i], maxR, maxC);
+    while(!over) {
+        if (wgetch(stdscr) == 'q') {
+            over = true;
         }
-
-        // print current mpd status
-        // if unable, just print error
-        if(!(status)){
-            mvprintw(0,0, "Unable to retrieve status from mpd.");
-        } else {
-            print_mpd_status(status,maxC,maxR/2+maxR/6);
+        // select on fifo socket
+        // if > 0 means data to be read
+        if ((ret = select(fifo+1, &set, NULL, NULL, NULL)) > 0) {
+            // read data when avaiable
+            read(fifo, (uint16_t*)buf, 2*N_SAMPLES);
+            // process read buffer
+            process_fifo(buf, fftBuf, fftAvg);
         }
-
-		// refresh the screen, free the allocated buffer
-		refresh();
-		free(fftAvg);
-	}
+        // refresh status at SIGALRM
+        if(getstatus) {
+            // get mpd status
+            free_status_st(status);
+            status = get_current_status(session);
+            getstatus = false;
+            // set alarm for status refresh
+            alarm(1);
+        }
+        if (ret > 0) {
+            // clear screen for printing (only if new data on fifo)
+            erase();
+            print_visual(fftBuf, fftAvg);
+            // print mpd status (if not refreshed, print old one)
+        }
+        // print mpd status even if no new data is avaiable
+        print_mpd_status(status, maxC, maxR/2+maxR/6);
+        // refresh screen
+        refresh();
+    }
+    free(fftAvg);
+    free(fftBuf);
+    free_status_st(status);
+    close(fifo);
     close_connection(session);
 }
 
-void
-process_alsa() {}
 int
 main(int argc, char *argv[])
 {
-	int fifo;
 	WINDOW *mainwin;
+
     import_var_from_settings();
-
-	while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
-
-	if (argc > 2 || argc < 1){
-		fprintf(stderr, "Usage: mvc [--alsa/--mpd]\nDefault is MPD.");
-		exit(EXIT_FAILURE);
-	}
 
 	if((mainwin = curses_init()) == NULL){
 		exit(EXIT_FAILURE);
 	}
+
 	// get screen properties
 	getmaxyx(stdscr, maxR, maxC);
 	curs_set(0);
@@ -119,14 +157,9 @@ main(int argc, char *argv[])
 	nodelay(stdscr, TRUE);
 
 	// call the fifo processor
-	if (strcmp (argv[2], "--alsa") == 0) {
-		process_alsa(fifo);
-	} else {
-		process_mpd(fifo);
-	}
+    main_event();
 
 	// free resources
-	close(fifo);
 	endwin();
 	delwin(mainwin);
 
