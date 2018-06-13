@@ -16,6 +16,7 @@
 #include "utils_curses.h"
 #include "alsa_fifo.h"
 #include "utils_mpd.h"
+#include "settings.h"
 
 #define MPD_FIFO "/tmp/mpd.fifo"
 #define N_SAMPLES 1024
@@ -53,7 +54,8 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg) {
 void
 print_visual(unsigned int* fftBuf, unsigned int* fftAvg)
 {
-    int correction = maxC/16; //center terminal
+	int correction = maxC/8; //center terminal
+	/*int correction = 0;*/
     int i;
 
     // main loop to print column by column
@@ -98,7 +100,7 @@ main_event()
     session = open_connection();
 
     signal(SIGALRM, alarm_status);
-    alarm(1);
+	alarm(STATUS_REFRESH);
 
     while(!over) {
         if (wgetch(stdscr) == 'q') {
@@ -119,7 +121,7 @@ main_event()
             status = get_current_status(session);
             getstatus = false;
             // set alarm for status refresh
-            alarm(1);
+			alarm(STATUS_REFRESH);
         }
         if (ret > 0) {
             // clear screen for printing (only if new data on fifo)
