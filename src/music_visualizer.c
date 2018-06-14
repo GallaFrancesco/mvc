@@ -82,6 +82,7 @@ main_event()
     STATUS* status = NULL;
     fd_set set;
     int ret;
+	int cnt = 0; // used to set resolution (wether to skip / not to skip a read)
 
     // open mpd fifo
     while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
@@ -112,7 +113,11 @@ main_event()
             // read data when avaiable
             read(fifo, (uint16_t*)buf, 2*N_SAMPLES);
             // process read buffer
-            process_fifo(buf, fftBuf, fftAvg);
+			if(cnt == NICENESS) {
+            	process_fifo(buf, fftBuf, fftAvg);
+				cnt = 0;
+			}
+			cnt++;
         }
         // refresh status at SIGALRM
         if(getstatus) {
@@ -125,9 +130,10 @@ main_event()
         }
         if (ret > 0) {
             // clear screen for printing (only if new data on fifo)
-            erase();
-            print_visual(fftBuf, fftAvg);
-            // print mpd status (if not refreshed, print old one)
+			if(cnt == NICENESS) {
+            	erase();
+           		print_visual(fftBuf, fftAvg);
+			}
         }
         // print mpd status even if no new data is avaiable
         print_mpd_status(status, maxC, maxR/2+maxR/6);
