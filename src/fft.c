@@ -75,6 +75,18 @@ amplitude(cplx c, unsigned int n)
 }
 
 void
+normalize_fft(int inLen, unsigned int* fftSig)
+{
+	// normalize by dividing for the amplitude
+	int i;
+	int old;
+	for(i=0; i<inLen; i++){
+		fftSig[i] = (int)(10*fftSig[i]/(20*log10(fftSig[512])));
+		fprintf(stderr, "%d\n", fftSig[i]);
+	}
+}
+
+void
 fast_fft(int inLen, uint16_t *sig, unsigned int *fftSig)
 {
 	int i;
@@ -95,7 +107,7 @@ fast_fft(int inLen, uint16_t *sig, unsigned int *fftSig)
 	for(i=0; i<inLen; i++){
 		fftSig[i] = amplitude(outputComponents[i], inLen);
 	}
-
+	/*normalize_fft(inLen, fftSig);*/
 	free(outputComponents);
 }
 

@@ -1,11 +1,35 @@
-static char defHost[] = "localhost"; // the ip of mpd
-static unsigned int defPort = 6600;// the port as defined in mpd configs
-static char defDBlocation[] = "/home/francesco/.mpd/mpd.db"; // the location of the database to be used with the custom search
-#define TIMEOUT 1000 // timeout for connection, define at your own risk. Good values range between 1000 and 5000
-#define STATUS_REFRESH 5 // #seconds between each mpd status refresh
-#define NICENESS 0 // nuber of buffers whose computation is skipped (cyclically).
-				   // More skips mean less precision, nicer on older cpus
-				   // 0 -> do not skip
-				   // 1 -> process one out of two
-				   // 2 -> process one out of three
-				   // etc
+/*
+ **** MPD options
+ */
+
+static char defHost[] = "localhost";
+static unsigned int defPort = 6600;
+// database location, needed for libmpdclient
+static char defDBlocation[] = "/home/francesco/.mpd/mpd.db";
+// timeout for MPD connection to fail
+#define TIMEOUT 1000
+
+/*
+ **** Visualizer options
+ */
+
+// number of samples
+// (a power of 2)
+// NOTE: modifying the original value of 1024
+// might result in messy output
+#define N_SAMPLES 1024
+// path to the MPD named pipe
+// (defined: 'mpd.conf')
+#define MPD_FIFO "/tmp/mpd.fifo"
+// seconds between each mpd status refresh
+#define STATUS_REFRESH 5
+// nuber of buffers whose computation is skipped (cyclically).
+// More skips mean less precision, nicer on older CPUs
+// 0 -> do not skip
+// 1 -> process one out of two
+// 2 -> process one out of three
+// etc
+#define NICENESS 0
+// subtracted to each component (visualized column)
+// adjust according to screen height
+#define REDUCTION 20

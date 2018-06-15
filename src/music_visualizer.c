@@ -18,9 +18,6 @@
 #include "utils_mpd.h"
 #include "settings.h"
 
-#define MPD_FIFO "/tmp/mpd.fifo"
-#define N_SAMPLES 1024
-#define MAXEVENTS 1
 
 static _Atomic bool getstatus = true;
 static int maxR = 0;
@@ -60,7 +57,7 @@ print_visual(unsigned int* fftBuf, unsigned int* fftAvg)
 
     // main loop to print column by column
     for(i=correction; i<maxC+correction; i++){
-        fftAvg[i] -= 20; // correction for display
+        fftAvg[i] -= REDUCTION; // correction for display
 
         // check boundaries (respect the boundaries of the screen, otherwise segvs)
         // if they don't, setting them to 1 is a safety measure
@@ -116,8 +113,9 @@ main_event()
 			if(cnt == NICENESS) {
             	process_fifo(buf, fftBuf, fftAvg);
 				cnt = 0;
+			} else {
+				cnt++;
 			}
-			cnt++;
         }
         // refresh status at SIGALRM
         if(getstatus) {
