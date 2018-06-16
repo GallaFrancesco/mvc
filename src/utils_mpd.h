@@ -1,3 +1,5 @@
+#ifdef STATUS_CHECK
+
 #ifndef KPD_UTIL_H
 #define KPD_UTIL_H
 #include <stdbool.h>
@@ -45,8 +47,8 @@ extern unsigned int _port;
 
 bool change_port ();
 bool change_host ();
-void import_var_from_settings ();
 void free_var_from_settings ();
+void import_var_from_settings ();
 
 struct mpd_connection *open_connection();
 void close_connection(struct mpd_connection *mpdConnection);
@@ -96,4 +98,5 @@ bool vfilter_helper (char **args, int n);
 bool add(  char **args, int n);
 bool print_full_names (char **args, int n);
 
+#endif
 #endif

@@ -5,6 +5,10 @@ It performs a Fast Fourier Transform of the raw PCM data provided by MPD.
 
 ## Requirements
 
+No external dependencies other than GCC (or another C99 compatible compiler).
+
+**Optional**: [libmpdclient](https://github.com/MusicPlayerDaemon/libmpdclient) to display current status (song / elapsed time / etc)
+
 The fifo output of MPD needs to be enabled. To do so, simply place this in your mpd.conf:
 
 ```
@@ -15,15 +19,19 @@ audio_output {
 	format                  "44100:16:1"
 }
 ```
-This is allowing MPD to create a file (the location is hardcoded right now so it MUST be /tmp/mpd.fifo) and write it with raw PCM data in realtime.
-Path and format variables MUST be the same displayed above.
-By reading that, mvc is able to compute a frequency spectrum of the current track played.
 
 ## Building
 
 Makefile-based.
+
+**Build with status display (requires libmpdclient):**
 ```
 make all
+```
+
+**Build without status display (no external dependencies):**
+```
+make nostatus
 ```
 
 To install:
@@ -36,10 +44,9 @@ sudo make install
 Simply run in your terminal:
 
 ```
-mvc [color]
+mvc
 ```
-[color] is the number of a color in your terminal colorscheme.
 
 The keypress '**q**'' at anytime **quits** the program and restores the terminal.
 
-Note that an instance of MPD must be running for mvc to work, otherwise the fifo file doesn't exist.
+Note that an instance of MPD must be running for mvc to work, otherwise the fifo file wouldn't exist.

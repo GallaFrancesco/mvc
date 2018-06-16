@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <mpd/client.h> // status
 #include <stdlib.h>		// exit
 #include <unistd.h>		// read
 #include <sys/stat.h>	// open	
@@ -15,14 +14,18 @@
 #include "fft.h"		// fast fourier transform
 #include "utils_curses.h"
 #include "alsa_fifo.h"
-#include "utils_mpd.h"
 #include "settings.h"
 
-
+#ifdef STATUS_CHECK
+#include <mpd/client.h> // status
+#include "utils_mpd.h"
 static _Atomic bool getstatus = true;
+#endif
+
 static int maxR = 0;
 static int maxC = 0;
 
+#ifdef STATUS_CHECK
 void
 get_mpd_status(struct mpd_connection* session, STATUS* status)
 {
@@ -37,6 +40,7 @@ alarm_status()
 {
     getstatus = true;
 }
+#endif
 
 void
 process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg) {
@@ -74,9 +78,11 @@ main_event()
 {
     uint16_t buf[N_SAMPLES];
     int fifo;
+#ifdef STATUS_CHECK
     struct mpd_connection *session;
-    bool over = false;
     STATUS* status = NULL;
+#endif
+    bool over = false;
     fd_set set;
     int ret;
 	int cnt = 0; // used to set resolution (wether to skip / not to skip a read)
@@ -95,10 +101,11 @@ main_event()
     memset(fftAvg, 0, N_SAMPLES*sizeof(unsigned int));
 
     // open connection to mpd and set alarm to refresh status
+#ifdef STATUS_CHECK
     session = open_connection();
-
     signal(SIGALRM, alarm_status);
 	alarm(STATUS_REFRESH);
+#endif
 
     while(!over) {
         if (wgetch(stdscr) == 'q') {
@@ -108,7 +115,7 @@ main_event()
         // if > 0 means data to be read
         if ((ret = select(fifo+1, &set, NULL, NULL, NULL)) > 0) {
             // read data when avaiable
-            read(fifo, (uint16_t*)buf, 2*N_SAMPLES);
+            ret = read(fifo, (uint16_t*)buf, 2*N_SAMPLES);
             // process read buffer
 			if(cnt == NICENESS) {
             	process_fifo(buf, fftBuf, fftAvg);
@@ -118,6 +125,7 @@ main_event()
 			}
         }
         // refresh status at SIGALRM
+#ifdef STATUS_CHECK
         if(getstatus) {
             // get mpd status
             free_status_st(status);
@@ -126,6 +134,7 @@ main_event()
             // set alarm for status refresh
 			alarm(STATUS_REFRESH);
         }
+#endif
         if (ret > 0) {
             // clear screen for printing (only if new data on fifo)
 			if(cnt == NICENESS) {
@@ -133,24 +142,29 @@ main_event()
            		print_visual(fftBuf, fftAvg);
 			}
         }
+#ifdef STATUS_CHECK
         // print mpd status even if no new data is avaiable
         print_mpd_status(status, maxC, maxR/2+maxR/6);
+#endif
         // refresh screen
         refresh();
     }
+#ifdef STATUS_CHECK
+    close_connection(session);
+    free_status_st(status);
+#endif
     free(fftAvg);
     free(fftBuf);
-    free_status_st(status);
     close(fifo);
-    close_connection(session);
 }
 
 int
 main(int argc, char *argv[])
 {
 	WINDOW *mainwin;
-
+#ifdef STATUS_CHECK
     import_var_from_settings();
+#endif
 
 	if((mainwin = curses_init()) == NULL){
 		exit(EXIT_FAILURE);

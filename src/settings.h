@@ -1,14 +1,12 @@
 /*
  **** MPD options
  */
-
 static char defHost[] = "localhost";
 static unsigned int defPort = 6600;
 // database location, needed for libmpdclient
 static char defDBlocation[] = "/home/francesco/.mpd/mpd.db";
 // timeout for MPD connection to fail
 #define TIMEOUT 1000
-
 /*
  **** Visualizer options
  */

@@ -60,6 +60,7 @@ print_col(int col, int l, const int maxR, const int maxC)
 }
 
 
+#ifdef STATUS_CHECK
 /* prints a STATUS structure to stdout */
 void 
 print_mpd_status(STATUS* status, const int maxC, const int row)
@@ -137,4 +138,4 @@ print_mpd_status(STATUS* status, const int maxC, const int row)
     }
     return;
 }
-
+#endif

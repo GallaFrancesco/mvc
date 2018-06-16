@@ -1,19 +1,29 @@
-SRC = src/fft.c src/utils_curses.c src/music_visualizer.c src/utils_mpd.c src/settings.h#src/alsa_fifo.c
+SRC = src/settings.h src/fft.c src/utils_curses.c src/music_visualizer.c src/utils_mpd.c
 ALL = $(SRC)
 LOCPATH = ./bin
 INSTALLPATH = /usr/local
-LFLAGS =  -lm -lcurses -ldl -lmpdclient #-ltinfo #-lasound
+CFLAGS = -O2
+LFLAGS =  -lm -lcurses -ldl #-ltinfo #-lasound
 DEBFLAGS = -g -Wall
 NAME = mvc
+LFLAGS_STATUS = -lmpdclient
+
+LIBMPDCLIENT=$(shell [ -e /usr/include/mpd/client.h ] && echo 0 || echo 1)
+ifeq ($(LIBMPDCLIENT), 0)
+	CFLAGS += -DSTATUS_CHECK
+endif
 
 all:
 	mkdir -p $(LOCPATH)
-	gcc $(ALL) -o $(LOCPATH)/$(NAME) $(LFLAGS) 
+	gcc $(ALL) -o $(LOCPATH)/$(NAME) $(CFLAGS) $(LFLAGS) $(LFLAGS_STATUS)
+nostatus:
+	mkdir -p $(LOCPATH)
+	gcc $(ALL) -o $(LOCPATH)/$(NAME) -O2 $(LFLAGS)
 debug:
 	mkdir -p $(LOCPATH)/debug
-	gcc $(ALL) -o $(LOCPATH)/debug/$(NAME)_debug $(LFLAGS) $(DEBFLAGS)
+	gcc $(ALL) -o $(LOCPATH)/debug/$(NAME)_debug $(CFLAGS) $(LFLAGS) $(DEBFLAGS)
 asan:
-	gcc $(ALL) -o $(LOCPATH)/debug/$(NAME)_debug_asan $(LFLAGS) $(DEBFLAGS) -fsanitize=address
+	gcc $(ALL) -o $(LOCPATH)/debug/$(NAME)_debug_asan $(CFLAGS) $(LFLAGS) $(DEBFLAGS) -fsanitize=address
 clean:
 	rm $(LOCPATH)/$(NAME)
 	rm $(LOCPATH)/debug/$(NAME)_debug

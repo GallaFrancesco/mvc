@@ -1,3 +1,5 @@
+
+#ifdef STATUS_CHECK
 #include "utils_mpd.h" 
 #include <mpd/client.h> // libmpdclient
 #include <stdio.h> // fprintf
@@ -437,3 +439,5 @@ count_playlist_elements (QUEUE *q)
 		return i;
 	}
 }
+
+#endif
