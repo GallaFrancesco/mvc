@@ -1,15 +1,14 @@
 # mvc
 
-An MPD music visualizer, based on curses. It works by reading the fifo output of an MPD instance. 
-It performs a Fast Fourier Transform of the raw PCM data provided by MPD.
+Minimal MPD music visualizer, based on curses. Works by reading the fifo output of an MPD instance.
 
 ## Requirements
 
-No external dependencies other than GCC (or another C99 compatible compiler).
+**No external dependencies** other than **GCC** (or another C99 compatible compiler).
 
-**Optional**: [libmpdclient](https://github.com/MusicPlayerDaemon/libmpdclient) to display current status (song / elapsed time / etc)
+**Optional**: [libmpdclient](https://github.com/MusicPlayerDaemon/libmpdclient) to display current status (song / elapsed time / etc).
 
-The fifo output of MPD needs to be enabled. To do so, simply place this in your mpd.conf:
+The fifo output of MPD needs to be enabled. To do so, simply place this in your *mpd.conf*:
 
 ```
 audio_output {
@@ -22,31 +21,36 @@ audio_output {
 
 ## Building
 
-Makefile-based.
+**Clone the repo:**
+```
+git clone https://github.com/gallafrancesco/mvc.git
+cd mvc/
+```
 
 **Build with status display (requires libmpdclient):**
 ```
 make all
 ```
+*Note: without libmpdclient installed, this is equivalent to 'make nostatus'*.
 
 **Build without status display (no external dependencies):**
 ```
 make nostatus
 ```
 
-To install:
+Install (to */usr/local/bin/*):
 ```
 sudo make install
 ```
 
 ## Usage
 
-Simply run in your terminal:
+An instance of MPD must be running for mvc to work.
 
+From a console / terminal emulator:
 ```
 mvc
 ```
 
-The keypress '**q**'' at anytime **quits** the program and restores the terminal.
+**Quitting:** Press q.
 
-Note that an instance of MPD must be running for mvc to work, otherwise the fifo file wouldn't exist.

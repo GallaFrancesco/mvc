@@ -6,10 +6,10 @@ CFLAGS = -O2
 LFLAGS =  -lm -lcurses -ldl #-ltinfo #-lasound
 DEBFLAGS = -g -Wall
 NAME = mvc
-LFLAGS_STATUS = -lmpdclient
 
 LIBMPDCLIENT=$(shell [ -e /usr/include/mpd/client.h ] && echo 0 || echo 1)
 ifeq ($(LIBMPDCLIENT), 0)
+	LFLAGS_STATUS = -lmpdclient
 	CFLAGS += -DSTATUS_CHECK
 endif
 
