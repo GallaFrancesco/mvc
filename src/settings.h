@@ -30,8 +30,8 @@ static char defDBlocation[] = "/home/francesco/.mpd/mpd.db";
 #define NICENESS 0
 // subtracted to each component (visualized column)
 // adjust according to screen height
-#define REDUCTION 20
+#define Y_CORRECTION 20
 
 // adjust lateral shift on screen
 // might prevent full borders from being printed, adjust
-#define CORRECTION 0
+#define X_CORRECTION 1

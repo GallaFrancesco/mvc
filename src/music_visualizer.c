@@ -58,8 +58,8 @@ print_visual(unsigned int* fftBuf, unsigned int* fftAvg)
     int i;
 
     // main loop to print column by column
-    for(i=CORRECTION; i<maxC+CORRECTION; i++){
-        fftAvg[i] -= REDUCTION; // adjust to display height
+    for(i=X_CORRECTION; i<maxC+X_CORRECTION; i++){
+        fftAvg[i] -= Y_CORRECTION; // adjust to display height
 
         // check boundaries (respect the boundaries of the screen, otherwise segvs)
         // if they don't, setting them to 1 is a safety measure
@@ -67,7 +67,7 @@ print_visual(unsigned int* fftBuf, unsigned int* fftAvg)
             fftAvg[i] = 1;
         }
         // print the column fftAvg[i]
-        print_col(i-CORRECTION, fftAvg[i], maxR, maxC);
+        print_col(i-X_CORRECTION, fftAvg[i], maxR, maxC);
     }
 }
 
