@@ -1,7 +1,7 @@
 /*
  **** MPD options
  */
-static char defHost[] = "localhost";
+static char defHost[] = "192.168.1.131";
 static unsigned int defPort = 6600;
 // database location, needed for libmpdclient
 static char defDBlocation[] = "/home/francesco/.mpd/mpd.db";
@@ -20,7 +20,7 @@ static char defDBlocation[] = "/home/francesco/.mpd/mpd.db";
 // (defined: 'mpd.conf')
 #define MPD_FIFO "/tmp/mpd.fifo"
 // seconds between each mpd status refresh
-#define STATUS_REFRESH 5
+#define STATUS_REFRESH 1
 // nuber of buffers whose computation is skipped (cyclically).
 // More skips mean less precision, nicer on older CPUs
 // 0 -> do not skip
@@ -31,3 +31,7 @@ static char defDBlocation[] = "/home/francesco/.mpd/mpd.db";
 // subtracted to each component (visualized column)
 // adjust according to screen height
 #define REDUCTION 20
+
+// adjust lateral shift on screen
+// might prevent full borders from being printed, adjust
+#define CORRECTION 0

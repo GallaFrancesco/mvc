@@ -55,13 +55,11 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg) {
 void
 print_visual(unsigned int* fftBuf, unsigned int* fftAvg)
 {
-	int correction = maxC/8; //center terminal
-	/*int correction = 0;*/
     int i;
 
     // main loop to print column by column
-    for(i=correction; i<maxC+correction; i++){
-        fftAvg[i] -= REDUCTION; // correction for display
+    for(i=CORRECTION; i<maxC+CORRECTION; i++){
+        fftAvg[i] -= REDUCTION; // adjust to display height
 
         // check boundaries (respect the boundaries of the screen, otherwise segvs)
         // if they don't, setting them to 1 is a safety measure
@@ -69,7 +67,7 @@ print_visual(unsigned int* fftBuf, unsigned int* fftAvg)
             fftAvg[i] = 1;
         }
         // print the column fftAvg[i]
-        print_col(i-correction, fftAvg[i], maxR, maxC);
+        print_col(i-CORRECTION, fftAvg[i], maxR, maxC);
     }
 }
 
