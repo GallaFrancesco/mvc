@@ -54,3 +54,17 @@ mvc
 
 **Quitting:** Press q.
 
+## Configuration
+
+Editing `settings.h` allows the configuration of:
+
+* Host, Port, Timeout and DB location of the *mpd* instance
+* Timeout for the connection to *mpd* to fail
+* Number of samples taken each read
+* Location of the MPD named pipe (fifo) from which *mvc* reads.
+* Seconds in between each status refresh
+* Niceness: number of reads to be skipped cyclically (reduces load on the cpu)
+* Y\_Correction: integer value to be subtracted to the components in case the height of the
+  screen wasn't sufficient
+* X\_Correction: lateral shift in case the visualized spectrum is not perfectly aligned with the
+  center of the screen.
