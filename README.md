@@ -23,7 +23,7 @@ audio_output {
 
 **Clone the repo:**
 ```
-git clone https://github.com/gallafrancesco/mvc.git
+git clone https://fragal.eu/git/fra/mvc
 cd mvc/
 ```
 
