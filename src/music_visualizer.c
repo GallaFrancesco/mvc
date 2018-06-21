@@ -13,7 +13,6 @@
 
 #include "fft.h"		// fast fourier transform
 #include "utils_curses.h"
-#include "alsa_fifo.h"
 #include "settings.h"
 
 #ifdef STATUS_CHECK
