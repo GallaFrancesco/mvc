@@ -76,19 +76,24 @@ print_mpd_status(STATUS* status, const int maxC, const int row)
     song = status->song;
     int maxlen;
     int center;
+    int first_len = strlen(song->artist) + strlen(song->title) + 5; // artist + title
+    int second_len = strlen(status->state)+18; // state + elapsed
+    int third_len = strlen(song->album) + 3; // album
+
     if (song == NULL) {
         return;
     }
+
     if (song->artist == NULL) {
         maxlen = strlen(song->uri) + 3;
         center = maxC/2 - maxlen/2;
     } else {
-        maxlen = strlen(song->artist) + strlen(song->title) + 5;
-        if (strlen(status->state)+18 > maxlen){
-            maxlen=strlen(status->state)+18;
+        maxlen = first_len;
+        if (second_len > maxlen){
+            maxlen=second_len;
         }
-        if (strlen(song->album + 3) > maxlen) {
-            maxlen=strlen(song->album) + 3;
+        if (third_len > maxlen) {
+            maxlen=third_len;
         }
         center = maxC/2 - (maxlen)/2; 
     }
@@ -114,12 +119,12 @@ print_mpd_status(STATUS* status, const int maxC, const int row)
         if (nullFlag == false) {
             // title, artist, album fields are missing, will print filesystem name
             mvprintw (row+1, center+1, "%s", song->uri);
-            mvprintw (row+2, center+6, "---- No metadata avaiable ----");
+            mvprintw (row+2, center+1, "[No metadata]");
         }
         if(status->state != NULL){
             mvprintw(row+3, center+1, "(%s)", status->state);
         }
-        mvprintw(row+3, center+maxlen-10, "%d:%.2d/%d:%.2d ", status->elapsedTime_min, status->elapsedTime_sec, song->duration_min, song->duration_sec);
+        mvprintw(row+3, center+maxlen-11, "%d:%.2d/%d:%.2d ", status->elapsedTime_min, status->elapsedTime_sec, song->duration_min, song->duration_sec);
     }
     for (i=0; i<maxlen+4; i++) {
         mvaddch(row, center-2+i, '-');
