@@ -42,13 +42,13 @@ alarm_status()
 #endif
 
 void
-process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg) {
+process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, int nsamples) {
     // performs a Fourier Transform of the buffer data
-    fast_fft(N_SAMPLES, (uint16_t*)buf, fftBuf);
+    fast_fft(nsamples, (uint16_t*)buf, fftBuf);
 
     // computes an average of the signals in fftBuf
     // based on the number of columns of the screen
-    average_signal(fftBuf, N_SAMPLES, maxC, fftAvg);
+    average_signal(fftBuf, nsamples, maxC, fftAvg);
 }
 
 void
@@ -83,6 +83,8 @@ main_event()
     fd_set set;
     int ret;
 	int cnt = 0; // used to set resolution (wether to skip / not to skip a read)
+    uint32_t sampleRate = 0;
+    int nsamples = N_SAMPLES; // adapt processing to sample rate
 
     // open mpd fifo
     while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
@@ -112,10 +114,14 @@ main_event()
         // if > 0 means data to be read
         if ((ret = select(fifo+1, &set, NULL, NULL, NULL)) > 0) {
             // read data when avaiable
-            ret = read(fifo, (uint16_t*)buf, 2*N_SAMPLES);
+            if (sampleRate == 96000) {
+                ret = read(fifo, (uint16_t*)buf, N_SAMPLES);
+            } else if (sampleRate < 96000) {
+                ret = read(fifo, (uint16_t*)buf, 2*N_SAMPLES);
+            }
             // process read buffer
 			if(cnt == NICENESS) {
-            	process_fifo(buf, fftBuf, fftAvg);
+            	process_fifo(buf, fftBuf, fftAvg, nsamples);
 				cnt = 0;
 			} else {
 				cnt++;
@@ -127,6 +133,11 @@ main_event()
             // get mpd status
             free_status_st(status);
             status = get_current_status(session);
+            if ((sampleRate = status->sampleRate) == 96000) {
+                nsamples = N_SAMPLES/2;
+            } else if (sampleRate < 96000) {
+                nsamples = N_SAMPLES;
+            }
             getstatus = false;
             // set alarm for status refresh
 			alarm(STATUS_REFRESH);
@@ -179,6 +190,5 @@ main(int argc, char *argv[])
 	// free resources
 	endwin();
 	delwin(mainwin);
-
 	return 0;
 }

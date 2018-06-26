@@ -16,6 +16,7 @@ static char defDBlocation[] = "/home/francesco/.mpd/mpd.db";
 // NOTE: modifying the original value of 1024
 // might result in messy output
 #define N_SAMPLES 1024
+
 // path to the MPD named pipe
 // (defined: 'mpd.conf')
 #define MPD_FIFO "/tmp/mpd.fifo"

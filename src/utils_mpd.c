@@ -23,6 +23,14 @@ char *_host;
 char *_DBlocation;
 unsigned int _port;
 
+uint32_t
+get_sample_rate(const struct mpd_status* status)
+{
+    struct mpd_audio_format* format = mpd_status_get_audio_format(status);
+    uint32_t rate = format->sample_rate;
+    return rate;
+}
+
 void
 import_var_from_settings ()
 {
@@ -311,133 +319,9 @@ get_current_status()
 	status->elapsedTime_min = eltime/60;
 	status->elapsedTime_sec = eltime%60;	
 	status->queueLenght = mpd_status_get_queue_length(mpdStatus);
+    status->sampleRate = get_sample_rate(mpdStatus);
 
 	mpd_status_free (mpdStatus);	
 	return status;	
 }
-
-/* add a new element to the playlist queue
- * returns 1 if error
- * returns 0 if successful
- * */
-bool
-enqueue(QUEUE *q, SONG *s)
-{
-	QUEUE *t;
-	if((t = (QUEUE*)malloc(sizeof(QUEUE))) == NULL){
-		STANDARD_USAGE_ERROR("calloc");
-		return false;
-	}
-	t->song = s;
-	if(q->next == NULL){
-		q->next = t;
-		q->next->next = t;
-	} else {
-		t->next = q->next->next;
-		q->next->next = t;
-		q->next = t;
-	}
-	return true;
-}
-
-/* delete an element from the queue and save the linked song 
- * returns NULL if q empty 
- * returns SONG* element if successful
- */
-SONG* 
-dequeue(QUEUE* q)
-{
-	QUEUE *t;
-	SONG* song = NULL;
-	if(q->next == NULL){
-		return NULL;
-	}
-	if(q->next != q->next->next){
-		t = q->next->next;
-		q->next->next = t->next;
-		song = t->song;
-		free(t);
-	} else {
-		song = q->next->song;
-		free(q->next);
-		q->next = NULL;
-	}
-	return song;
-}
-
-void destroy_queue (QUEUE *q)
-{
-	if (q != NULL) {
-		destroy_queue (q->next);
-		/*free_song_st (q->song);*/
-		free (q);
-	}
-}
-
-/* receives the songs in the playlist, one by one
- * after the get_current_playlist function
- * returns NULL if error or empty playlist
- * returns a queue of songs if successful
- */
-static QUEUE* 
-retrieve_songs(QUEUE *q, struct mpd_connection *mpdConnection)
-{
-	SONG* song = NULL;
-	struct mpd_song* mpdSong = NULL;
-
-	if((mpdSong = mpd_recv_song(mpdConnection)) == NULL){		
-		return q;
-	}	
-		
-	song = parse_mpd_song(mpdSong);
-	if(enqueue(q, song) == 0){
-		return NULL;
-	}
-	
-	retrieve_songs(q, mpdConnection);
-	return q;
-}
-
-/* sends to the server the request for a playlist queue,
- * calls retrieve_songs and builds q
- * returns NULL if error
- * returns a playlist queue if successful
- */
-QUEUE* 
-get_current_playlist()
-{
-	QUEUE *q = NULL;	
-	struct mpd_connection *mpdConnection = NULL;
-
-	mpdConnection = open_connection ();
-	mpd_send_list_queue_meta(mpdConnection);
-		
-	if((q = (QUEUE*)malloc(sizeof(QUEUE))) == NULL){
-		STANDARD_USAGE_ERROR("calloc");		
-		return NULL;
-	}
-	q->next = NULL;
-	retrieve_songs(q, mpdConnection);
-	close_connection (mpdConnection);
-
-	return q;
-}
-
-int
-count_playlist_elements (QUEUE *q)
-{
-	QUEUE *tmp = q;
-	int i = 0;
-
-	if (q == NULL) {
-		return 0;
-	} else {
-		while (tmp != NULL) {
-			i++;
-			tmp = tmp->next;
-		}
-		return i;
-	}
-}
-
 #endif

@@ -32,6 +32,7 @@ typedef struct st {
 	int elapsedTime_min;
 	int elapsedTime_sec;
 	int queueLenght;
+    uint32_t sampleRate;
 	SONG* song;
 } STATUS;
 
@@ -57,46 +58,6 @@ void free_song_st (SONG *s);
 void free_status_st (STATUS *s);
 STATUS* get_current_status();
 void print_current_status(STATUS* status);
-QUEUE* get_current_playlist();
-int count_playlist_elements (QUEUE *q);
-bool enqueue(QUEUE* q, SONG* s);
-SONG* dequeue(QUEUE* q);
-void destroy_queue (QUEUE *q);
-void print_current_playlist(QUEUE *q);
-bool list (char **argv, int n);
-
-bool play (char **args, int n);
-//bool pause (char **args, int n);
-bool next ( char **args, int n);
-bool previous (char **args, int n);
-bool stop();
-//bool clear();
-bool delete_song(  int pos);
-int convert_to_int(char *arg);
-bool delete(  char **args, int n);
-bool delete_range(  char **args, int n);
-int compare_pos(const void *pos1, const void *pos2);
-bool random_kpd(  char **args, int n);
-bool consume(  char **args, int n);
-bool single(  char **args, int n);
-bool repeat(  char **args, int n);
-bool seek(  char **args, int n);
-bool forward(char **args, int n);
-bool backward(char **args, int n);
-bool swap(  char **args, int n);
-//bool move(  char **args, int n);
-bool update(  char **args, int n);
-bool shuffle(  char **args, int n);
-bool shuffle_range(  char **args, int n);
-bool output_enable(  char **args, int n);
-
-bool search_util (  char **args, int n);
-void destroy_search_results ();
-void print_search_results (char **results, int size);
-bool filter_helper (char **args, int n);
-bool vfilter_helper (char **args, int n);
-bool add(  char **args, int n);
-bool print_full_names (char **args, int n);
-
+uint32_t get_sample_rate(const struct mpd_status* status);
 #endif
 #endif
