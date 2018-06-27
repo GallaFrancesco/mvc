@@ -76,18 +76,22 @@ print_mpd_status(STATUS* status, const int maxC, const int row)
     song = status->song;
     int maxlen;
     int center;
-    int first_len = strlen(song->artist) + strlen(song->title) + 5; // artist + title
-    int second_len = strlen(status->state)+18; // state + elapsed
-    int third_len = strlen(song->album) + 3; // album
+    int first_len;
+    int second_len;
+    int third_len;
 
     if (song == NULL) {
         return;
     }
 
-    if (song->artist == NULL) {
+    if (song->artist == NULL || song->title == NULL) {
         maxlen = strlen(song->uri) + 3;
         center = maxC/2 - maxlen/2;
     } else {
+        first_len = strlen(song->artist) + strlen(song->title) + 5; // artist + title
+        second_len = strlen(status->state)+18; // state + elapsed
+        third_len = strlen(song->album) + 3; // album
+
         maxlen = first_len;
         if (second_len > maxlen){
             maxlen=second_len;

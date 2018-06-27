@@ -138,6 +138,7 @@ main_event()
             } else if (sampleRate < 96000) {
                 nsamples = N_SAMPLES;
             }
+            /*fprintf(stderr,"%d\n", nsamples);*/
             getstatus = false;
             // set alarm for status refresh
 			alarm(STATUS_REFRESH);

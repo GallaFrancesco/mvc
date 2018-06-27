@@ -48,7 +48,7 @@ free_var_from_settings ()
 }
 
 bool change_host (char **args, int n)
-{ 
+{
 	if (n == 0) {
 		STANDARD_USAGE_ERROR ("port");
 		return false;
