@@ -71,6 +71,16 @@ print_visual(unsigned int* fftAvg)
     }
 }
 
+int
+peak_amplitude(unsigned int* fftAvg, int len)
+{
+    int i, peak = fftAvg[i];
+    for(i=0; i<len; i++) {
+        if(fftAvg[i] > peak) peak = fftAvg[i];
+    }
+    return peak;
+}
+
 void
 main_event()
 {
@@ -158,7 +168,7 @@ main_event()
         print_mpd_status(status, maxC, maxR/2+maxR/6);
         if (status && status->song && status->song->duration_sec) {
             print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, \
-                    (int)fftAvg[0]);
+                    peak_amplitude(fftAvg, nsamples));
         }
 #endif
         // refresh screen
