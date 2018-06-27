@@ -59,6 +59,27 @@ print_col(int col, int l, const int maxR, const int maxC)
 	}
 }
 
+void
+print_rate_info(const int rate, const int nsamples, const int maxC, int seed)
+{
+    int center = (int) maxC/2-18; // adjust to screen center
+
+    srand(seed);
+    color_set(rand() % 7, NULL);
+
+    mvprintw(1, center, " || rate: %d - samples: %d || ", rate, nsamples);
+    if (nsamples != 512 && rate > 0) {
+        mvprintw(0, center, " --------------------------------- ", rate, nsamples);
+        mvprintw(2, center, " --------------------------------- ", rate, nsamples);
+    } else if (rate == 0) {
+        mvprintw(0, center, " ----------------------------- ", rate, nsamples);
+        mvprintw(2, center, " ----------------------------- ", rate, nsamples);
+    } else {
+        mvprintw(0, center, " -------------------------------- ", rate, nsamples);
+        mvprintw(2, center, " -------------------------------- ", rate, nsamples);
+    }
+}
+
 
 #ifdef STATUS_CHECK
 /* prints a STATUS structure to stdout */

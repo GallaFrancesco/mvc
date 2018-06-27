@@ -25,8 +25,14 @@ unsigned int _port;
 uint32_t
 get_sample_rate(const struct mpd_status* status)
 {
+    uint32_t rate;
     const struct mpd_audio_format* format = mpd_status_get_audio_format(status);
-    uint32_t rate = format->sample_rate;
+
+    if (format && format->sample_rate) {
+        rate = format->sample_rate;
+    } else {
+        rate = 0;
+    }
     return rate;
 }
 
@@ -320,7 +326,7 @@ get_current_status()
 	status->queueLenght = mpd_status_get_queue_length(mpdStatus);
     status->sampleRate = get_sample_rate((const struct mpd_status*)mpdStatus);
 
-	mpd_status_free (mpdStatus);	
-	return status;	
+	mpd_status_free (mpdStatus);
+	return status;
 }
 #endif

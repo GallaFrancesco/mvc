@@ -79,7 +79,6 @@ normalize_fft(int inLen, unsigned int* fftSig)
 {
 	// normalize by dividing for the amplitude
 	int i;
-	int old;
 	for(i=0; i<inLen; i++){
 		fftSig[i] = (int)(10*fftSig[i]/(20*log10(fftSig[512])));
 		fprintf(stderr, "%d\n", fftSig[i]);

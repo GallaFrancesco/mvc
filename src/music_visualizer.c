@@ -115,11 +115,9 @@ main_event()
         // if > 0 means data to be read
         if ((ret = select(fifo+1, &set, NULL, NULL, NULL)) > 0) {
             // read data when avaiable
-            if (sampleRate == 96000) {
-                ret = read(fifo, (uint16_t*)buf, N_SAMPLES);
-            } else if (sampleRate < 96000) {
-                ret = read(fifo, (uint16_t*)buf, 2*N_SAMPLES);
-            }
+            // adapt to sample rate for buffer processing
+            // the first time default to 44100 setting
+            ret = read(fifo, (uint16_t*)buf, 2*nsamples);
             // process read buffer
 			if(cnt == NICENESS) {
             	process_fifo(buf, fftBuf, fftAvg, nsamples);
@@ -134,12 +132,15 @@ main_event()
             // get mpd status
             free_status_st(status);
             status = get_current_status(session);
-            if ((sampleRate = status->sampleRate) == 96000) {
-                nsamples = N_SAMPLES/2;
-            } else if (sampleRate < 96000) {
-                nsamples = N_SAMPLES;
+            if (status) {
+                if ((sampleRate = status->sampleRate) >= 192000) {
+                    nsamples = N_SAMPLES/4;
+                } else if (sampleRate >= 96000 && sampleRate < 192000) {
+                    nsamples = N_SAMPLES/2;
+                } else if (sampleRate < 96000) {
+                    nsamples = N_SAMPLES;
+                }
             }
-            /*fprintf(stderr,"%d\n", nsamples);*/
             getstatus = false;
             // set alarm for status refresh
 			alarm(STATUS_REFRESH);
@@ -155,6 +156,7 @@ main_event()
 #ifdef STATUS_CHECK
         // print mpd status even if no new data is avaiable
         print_mpd_status(status, maxC, maxR/2+maxR/6);
+        print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec);
 #endif
         // refresh screen
         refresh();
