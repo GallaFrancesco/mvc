@@ -4,7 +4,7 @@ Minimal MPD music visualizer, based on curses. Works by reading the fifo output 
 
 ## Requirements
 
-**No external dependencies** other than **GCC** (or another C99 compatible compiler).
+**ncurses** and **GCC** (or another C99 compatible compiler).
 
 **Optional**: [libmpdclient](https://github.com/MusicPlayerDaemon/libmpdclient) to display current status (song / elapsed time / etc).
 
@@ -33,7 +33,7 @@ make all
 ```
 *Note: without libmpdclient installed, this is equivalent to 'make nostatus'*.
 
-**Build without status display (no external dependencies):**
+**Build without status display (without libmpdclient):**
 ```
 make nostatus
 ```
@@ -61,6 +61,7 @@ Editing `settings.h` allows the configuration of:
 * Host, Port, Timeout and DB location of the *mpd* instance
 * Timeout for the connection to *mpd* to fail
 * Number of samples taken each read
+* Adaptive sampling on / off: whether to adapt the number of samples to the current sample rate. Might give fairly accurate results with high rates (> 96000 Hz)
 * Location of the MPD named pipe (fifo) from which *mvc* reads.
 * Seconds in between each status refresh
 * Niceness: number of reads to be skipped cyclically (reduces load on the cpu)
