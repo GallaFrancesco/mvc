@@ -18,6 +18,12 @@ static char defDBlocation[] = "/home/francesco/.mpd/mpd.db";
 // (a power of 2)
 #define N_SAMPLES 1024
 
+// if adaptive sampling should be used
+// (adjust N_SAMPLES to sample rate of current song)
+// uses N_SAMPLES as maximum for 44100 Hz
+// set to 0 to disable
+#define ADAPTIVE_SAMPLING 1
+
 // path to the MPD named pipe
 // (defined: 'mpd.conf')
 #define MPD_FIFO "/tmp/mpd.fifo"
@@ -40,3 +46,4 @@ static char defDBlocation[] = "/home/francesco/.mpd/mpd.db";
 // adjust lateral shift on screen
 // might prevent full borders from being printed, adjust
 #define X_CORRECTION 1
+

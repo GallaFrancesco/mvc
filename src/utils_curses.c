@@ -60,23 +60,31 @@ print_col(int col, int l, const int maxR, const int maxC)
 }
 
 void
-print_rate_info(const int rate, const int nsamples, const int maxC, int seed)
+print_rate_info(const int rate, const int nsamples, const int maxC, int seed, int amplitude)
 {
     int center = (int) maxC/2-18; // adjust to screen center
-
+    int i;
     srand(seed);
     color_set(rand() % 7, NULL);
 
     mvprintw(1, center, " || rate: %d - samples: %d || ", rate, nsamples);
     if (nsamples != 512 && rate > 0) {
         mvprintw(0, center, " --------------------------------- ", rate, nsamples);
-        mvprintw(2, center, " --------------------------------- ", rate, nsamples);
+        mvprintw(2, center, " -------------[mvc]--------------- ", rate, nsamples);
     } else if (rate == 0) {
         mvprintw(0, center, " ----------------------------- ", rate, nsamples);
-        mvprintw(2, center, " ----------------------------- ", rate, nsamples);
+        mvprintw(2, center, " -----------[mvc]------------- ", rate, nsamples);
     } else {
         mvprintw(0, center, " -------------------------------- ", rate, nsamples);
-        mvprintw(2, center, " -------------------------------- ", rate, nsamples);
+        mvprintw(2, center, " ------------[mvc]--------------- ", rate, nsamples);
+    }
+    for(i=0; i<amplitude-60; i++) {
+        mvaddch(0, center-i, '-');
+        mvaddch(2, center-i, '-');
+        mvaddch(1, center-i, '|');
+        mvaddch(1, center+34+i, '|');
+        mvaddch(0, center+34+i, '-');
+        mvaddch(2, center+34+i, '-');
     }
 }
 

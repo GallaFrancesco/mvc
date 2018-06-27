@@ -53,7 +53,7 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, int nsa
 }
 
 void
-print_visual(unsigned int* fftBuf, unsigned int* fftAvg)
+print_visual(unsigned int* fftAvg)
 {
     int i;
 
@@ -133,9 +133,9 @@ main_event()
             free_status_st(status);
             status = get_current_status(session);
             if (status) {
-                if ((sampleRate = status->sampleRate) >= 192000) {
+                if (((sampleRate = status->sampleRate) >= 192000) && ADAPTIVE_SAMPLING) {
                     nsamples = N_SAMPLES/4;
-                } else if (sampleRate >= 96000 && sampleRate < 192000) {
+                } else if (ADAPTIVE_SAMPLING && (sampleRate >= 96000 && sampleRate < 192000)) {
                     nsamples = N_SAMPLES/2;
                 } else if (sampleRate < 96000) {
                     nsamples = N_SAMPLES;
@@ -150,13 +150,16 @@ main_event()
             // clear screen for printing (only if new data on fifo)
 			if(cnt == NICENESS) {
             	erase();
-           		print_visual(fftBuf, fftAvg);
+           		print_visual(fftAvg);
 			}
         }
 #ifdef STATUS_CHECK
         // print mpd status even if no new data is avaiable
         print_mpd_status(status, maxC, maxR/2+maxR/6);
-        print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec);
+        if (status && status->song && status->song->duration_sec) {
+            print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, \
+                    (int)fftAvg[0]);
+        }
 #endif
         // refresh screen
         refresh();
