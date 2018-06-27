@@ -3,7 +3,7 @@ ALL = $(SRC)
 LOCPATH = ./bin
 INSTALLPATH = /usr/local
 CFLAGS = -O2
-LFLAGS =  -lm -lcurses -ldl #-ltinfo #-lasound
+LFLAGS =  -lm -lncursesw -ldl #-ltinfo #-lasound
 DEBFLAGS = -g -Wall
 NAME = mvc
 

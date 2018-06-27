@@ -16,6 +16,7 @@
 #include "settings.h"
 
 #ifdef STATUS_CHECK
+#include <locale.h>
 #include <mpd/client.h> // status
 #include "utils_mpd.h"
 static _Atomic bool getstatus = true;
@@ -172,6 +173,7 @@ main(int argc, char *argv[])
 {
 	WINDOW *mainwin;
 #ifdef STATUS_CHECK
+    setlocale(LC_ALL, "");
     import_var_from_settings();
 #endif
 
