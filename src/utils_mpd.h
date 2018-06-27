@@ -1,3 +1,4 @@
+#pragma once
 #ifdef STATUS_CHECK
 
 #ifndef KPD_UTIL_H

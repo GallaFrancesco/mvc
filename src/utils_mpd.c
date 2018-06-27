@@ -1,4 +1,3 @@
-
 #ifdef STATUS_CHECK
 #include "utils_mpd.h" 
 #include <mpd/client.h> // libmpdclient
@@ -26,7 +25,7 @@ unsigned int _port;
 uint32_t
 get_sample_rate(const struct mpd_status* status)
 {
-    struct mpd_audio_format* format = mpd_status_get_audio_format(status);
+    const struct mpd_audio_format* format = mpd_status_get_audio_format(status);
     uint32_t rate = format->sample_rate;
     return rate;
 }
@@ -76,10 +75,10 @@ open_connection()
 {
 	struct mpd_connection *newConn = NULL;
 	enum mpd_error connErr;
-	
-	newConn = mpd_connection_new(_host, _port, TIMEOUT);
+
+    newConn = mpd_connection_new(_host, _port, TIMEOUT);
 	connErr = mpd_connection_get_error(newConn);
-	
+
 	/*if error occours*/
 	if(connErr != MPD_ERROR_SUCCESS){
 
@@ -90,35 +89,35 @@ open_connection()
 			case MPD_ERROR_OOM:
 				fprintf(stderr, "Out of memory\n");
 				break;
-		
-			case MPD_ERROR_ARGUMENT:
-				fprintf(stderr, "Unrecognized argument\n");
-				break;	
-		
-			case MPD_ERROR_STATE:
-				fprintf(stderr, "State\n");
-				break;
-		
-			case MPD_ERROR_TIMEOUT:
-				fprintf(stderr, "Timeout was reached\n");
-				break;
-		
-			case MPD_ERROR_SYSTEM:
-				fprintf(stderr, "System error\n");
-				break;
-		
-			case MPD_ERROR_RESOLVER:
-				fprintf(stderr, "Unknown host\n");
-				break;
-		
-			case MPD_ERROR_MALFORMED:
-				fprintf(stderr, "Malformed response received from MPD\n");
-				break;
-		
-			case MPD_ERROR_CLOSED:
-				fprintf(stderr, "Connection closed\n");
-				break;
-		
+
+            case MPD_ERROR_ARGUMENT:
+                fprintf(stderr, "Unrecognized argument\n");
+                break;
+
+            case MPD_ERROR_STATE:
+                fprintf(stderr, "State\n");
+                break;
+
+            case MPD_ERROR_TIMEOUT:
+                fprintf(stderr, "Timeout was reached\n");
+                break;
+
+            case MPD_ERROR_SYSTEM:
+                fprintf(stderr, "System error\n");
+                break;
+
+            case MPD_ERROR_RESOLVER:
+                fprintf(stderr, "Unknown host\n");
+                break;
+
+            case MPD_ERROR_MALFORMED:
+                fprintf(stderr, "Malformed response received from MPD\n");
+                break;
+
+            case MPD_ERROR_CLOSED:
+                fprintf(stderr, "Connection closed\n");
+                break;
+
 			case MPD_ERROR_SERVER:
 				fprintf(stderr, "Server error\n");
 				break;
@@ -236,7 +235,7 @@ get_current_song()
 {
 	struct mpd_connection *mpdConnection = NULL;
 	struct mpd_song* mpdSong = NULL;
-	
+
 	mpdConnection = open_connection ();
 	mpdSong = mpd_run_current_song(mpdConnection);
 	close_connection (mpdConnection);
@@ -319,7 +318,7 @@ get_current_status()
 	status->elapsedTime_min = eltime/60;
 	status->elapsedTime_sec = eltime%60;	
 	status->queueLenght = mpd_status_get_queue_length(mpdStatus);
-    status->sampleRate = get_sample_rate(mpdStatus);
+    status->sampleRate = get_sample_rate((const struct mpd_status*)mpdStatus);
 
 	mpd_status_free (mpdStatus);	
 	return status;	
