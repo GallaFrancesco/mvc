@@ -208,6 +208,7 @@ main_event()
 #endif
         // refresh screen
         refresh();
+	    getmaxyx(stdscr, maxR, maxC);
     }
 #ifdef STATUS_CHECK
     close_connection(session);
