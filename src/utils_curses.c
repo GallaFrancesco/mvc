@@ -60,7 +60,7 @@ print_col(int col, int l, const int maxR, const int maxC)
 }
 
 void
-print_rate_info(const int rate, const int nsamples, const int maxC, int seed, int amplitude)
+print_rate_info(const int rate, const int nsamples, const int maxC, int seed, int amplitude,int beat)
 {
     int center = (int) maxC/2-18; // adjust to screen center
     int i;
@@ -73,12 +73,12 @@ print_rate_info(const int rate, const int nsamples, const int maxC, int seed, in
         mvprintw(2, center, " -------------[mvc]--------------- ", rate, nsamples);
     } else if (rate == 0) {
         mvprintw(0, center, " ----------------------------- ", rate, nsamples);
-        mvprintw(2, center, " -----------[mvc]------------- ", rate, nsamples);
+        mvprintw(2+beat, center, " -----------[mvc]------------- ", rate, nsamples);
     } else {
         mvprintw(0, center, " -------------------------------- ", rate, nsamples);
-        mvprintw(2, center, " ------------[mvc]--------------- ", rate, nsamples);
+        mvprintw(2+beat, center, " ------------[mvc]--------------- ", rate, nsamples);
     }
-    for(i=0; i<amplitude-60; i++) {
+    for(i=0; i<amplitude-60+beat; i++) {
         mvaddch(0, center-i, '-');
         mvaddch(2, center-i, '-');
         mvaddch(1, center-i, '|');

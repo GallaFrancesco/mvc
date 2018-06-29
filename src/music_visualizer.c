@@ -22,8 +22,11 @@
 static _Atomic bool getstatus = true;
 #endif
 
+#define BEATC 27 // experiment with it
+
 static int maxR = 0;
 static int maxC = 0;
+
 
 #ifdef STATUS_CHECK
 void
@@ -42,14 +45,43 @@ alarm_status()
 }
 #endif
 
+int
+test_beat(unsigned int* fftEHist, int sEnergyLen, unsigned int* sEnergy)
+{
+    int i,j;
+    for(i=0; i<sEnergyLen; i++) {
+        // shift right
+        for(j=sEnergyLen-1; j>=0; j--) {
+            fftEHist[j] = fftEHist[j-1];  
+        }
+        // insert element
+        fftEHist[0] =  sEnergy[i];
+    
+        for(j=0; j<sEnergyLen; j++) {
+            /*fprintf(stderr, "- %d - %d\n", sEnergy[i], fftEHist[j]);*/
+            if (sEnergy[i] > fftEHist[j]+BEATC && sEnergy[i] < 200) { // 200 avg would be false read
+                /*fprintf(stderr, "beat: %d - %d\n", sEnergy[i], fftEHist[j]);*/
+                return 1;
+                /*} else {*/
+                /*fprintf(stderr, "no beat!");*/
+            }
+        }
+    }
+    return 0;
+}
+
 void
-process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, int nsamples) {
-    // performs a Fourier Transform of the buffer data
+process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
+        unsigned int* sEnergy, int nsamples, int sEnergyLen)
+{
     fast_fft(nsamples, (uint16_t*)buf, fftBuf);
 
     // computes an average of the signals in fftBuf
     // based on the number of columns of the screen
     average_signal(fftBuf, nsamples, maxC, fftAvg);
+
+    // compute the energy of each subband
+    energy_sub_signal(fftBuf, nsamples, nsamples/sEnergyLen, sEnergy);
 }
 
 void
@@ -74,7 +106,7 @@ print_visual(unsigned int* fftAvg)
 int
 peak_amplitude(unsigned int* fftAvg, int len)
 {
-    int i, peak = fftAvg[i];
+    int i, peak = fftAvg[0];
     for(i=0; i<len; i++) {
         if(fftAvg[i] > peak) peak = fftAvg[i];
     }
@@ -96,6 +128,7 @@ main_event()
 	int cnt = 0; // used to set resolution (wether to skip / not to skip a read)
     uint32_t sampleRate = 0;
     int nsamples = N_SAMPLES; // adapt processing to sample rate
+    int sEnergyLen = N_SAMPLES/32;
 
     // open mpd fifo
     while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
@@ -106,9 +139,13 @@ main_event()
     // allocate buffers used
     unsigned int* fftBuf= (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
     unsigned int* fftAvg = (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
+    unsigned int* fftEHist = (unsigned int*)malloc(sEnergyLen*sizeof(unsigned int));
+    unsigned int* sEnergy = (unsigned int*)malloc(sEnergyLen*sizeof(unsigned int));
     /*// set the result buffer to 0s*/
     memset(fftBuf, 0, N_SAMPLES*sizeof(unsigned int));
     memset(fftAvg, 0, N_SAMPLES*sizeof(unsigned int));
+    memset(fftEHist, 0, sEnergyLen*sizeof(unsigned int));
+    memset(sEnergy, 0, sEnergyLen*sizeof(unsigned int));
 
     // open connection to mpd and set alarm to refresh status
 #ifdef STATUS_CHECK
@@ -130,7 +167,7 @@ main_event()
             ret = read(fifo, (uint16_t*)buf, 2*nsamples);
             // process read buffer
 			if(cnt == NICENESS) {
-            	process_fifo(buf, fftBuf, fftAvg, nsamples);
+            	process_fifo(buf, fftBuf, fftAvg, sEnergy, nsamples, sEnergyLen);
 				cnt = 0;
 			} else {
 				cnt++;
@@ -143,9 +180,7 @@ main_event()
             free_status_st(status);
             status = get_current_status(session);
             if (status) {
-                if (((sampleRate = status->sampleRate) >= 192000) && ADAPTIVE_SAMPLING) {
-                    nsamples = N_SAMPLES/4;
-                } else if (ADAPTIVE_SAMPLING && (sampleRate >= 96000 && sampleRate < 192000)) {
+                if (((sampleRate = status->sampleRate) >= 96000) && ADAPTIVE_SAMPLING) {
                     nsamples = N_SAMPLES/2;
                 } else if (sampleRate < 96000) {
                     nsamples = N_SAMPLES;
@@ -168,7 +203,7 @@ main_event()
         print_mpd_status(status, maxC, maxR/2+maxR/6);
         if (status && status->song && status->song->duration_sec) {
             print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, \
-                    peak_amplitude(fftAvg, nsamples));
+                    peak_amplitude(fftAvg, maxC), 5*test_beat(fftEHist, sEnergyLen, sEnergy));
         }
 #endif
         // refresh screen
@@ -180,6 +215,8 @@ main_event()
 #endif
     free(fftAvg);
     free(fftBuf);
+    free(fftEHist);
+    free(sEnergy);
     close(fifo);
 }
 

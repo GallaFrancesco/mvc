@@ -115,8 +115,8 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 {
 	int i, j, step, k=0;
 	unsigned int avg;
-
-	step = inLen/(max);
+    // N_SAMPLES / maximum number of columns
+    step = inLen/(max);
 	for(i=0; i<inLen; i=i+step){
 		avg = 0;
 		for(j=0; j<step; j++){
@@ -124,4 +124,23 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 		}
 		fftAvg[k++] = avg/step; //the 80 is a correction for the display
 	}
+}
+
+void
+energy_sub_signal(unsigned int *fftBuf, int inLen, int outLen, unsigned int* fftSEnergy)
+{
+    // given sound amplitudes in a buffer, divide it into `outLen` subbands,
+    // compute the energy of the subband
+    // store it in fftEnergy
+    int i, k;
+    double val;
+
+    for(i=0; i<outLen; i++)
+    {
+        fftSEnergy[i] = 0;
+        for(k=outLen*i; k<outLen*(i+1); k++) {
+            val = outLen*fftBuf[k]/inLen;
+            fftSEnergy[i] += (int)(val);
+        }
+    }
 }
