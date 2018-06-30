@@ -58,6 +58,8 @@ mvc
 * **Change drawing mode (style)**: Space bar
 * **Move status panel** (if built with libmpdclient): up / down / left / right keys
 * **Reset status panel position**: r
+* **Toggle status display**: t
+* **Print help**: h
 
 ## Configuration
 

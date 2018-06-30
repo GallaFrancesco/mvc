@@ -106,12 +106,13 @@ print_help(const int maxR, const int maxC)
 	mvprintw(2, 0, "Configuration: see src/settings.h");
 	mvprintw(4, 0, "Keybindings:");
     color_set(3, NULL);
-	mvprintw(5, 0, "* Quitting: q");
+	mvprintw(5, 0, "* Quit: q");
 	mvprintw(6, 0, "* Change drawing mode (style): Space bar");
 	mvprintw(7, 0, "* Move status panel (if built with libmpdclient): up / down / left / right keys");
 	mvprintw(8, 0, "* Reset status panel position: r");
+	mvprintw(9, 0, "* Toggle status display: t");
     color_set(1, NULL);
-	mvprintw(10, 0, "--> Press any key to continue.");
+	mvprintw(11, 0, "--> Press any key to continue.");
 	timeout(-1);
 	getch();
 	timeout(0);

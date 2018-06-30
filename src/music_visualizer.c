@@ -123,6 +123,7 @@ main_event()
 	PATTERN pattern = CURVE;
 	int statusHeight = 0;
 	int statusCol = 0;
+	bool toggleStatus = true;
 
     // open mpd fifo
     while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
@@ -166,6 +167,8 @@ main_event()
 			statusHeight = 0;
 		} else if (c == 'h') {
 			print_help(maxR,maxC);
+		} else if (c == 't') {
+			toggleStatus = (toggleStatus == true) ? false : true;
 		}
 
         // select on fifo socket
@@ -210,11 +213,13 @@ main_event()
         }
 #ifdef STATUS_CHECK
         // print mpd status even if no new data is avaiable
-        if (status && status->song && status->song->duration_sec) {
-            print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, \
-                    0, 5*test_beat(fftEHist, sEnergyLen, sEnergy));
-        }
-        print_mpd_status(status, maxC, statusHeight+maxR/2+maxR/6, statusCol);
+		if (toggleStatus) {
+			if (status && status->song && status->song->duration_sec) {
+				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, \
+						0, 5*test_beat(fftEHist, sEnergyLen, sEnergy));
+			}
+			print_mpd_status(status, maxC, statusHeight+maxR/2+maxR/6, statusCol);
+		}
 #endif
         // refresh screen
         refresh();
