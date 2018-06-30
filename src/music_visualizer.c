@@ -85,7 +85,7 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
 }
 
 void
-print_visual(unsigned int* fftAvg)
+print_visual(unsigned int* fftAvg, PATTERN pattern)
 {
     int i;
 
@@ -99,18 +99,8 @@ print_visual(unsigned int* fftAvg)
             fftAvg[i] = 1;
         }
         // print the column fftAvg[i]
-        print_col(i-X_CORRECTION, fftAvg[i], maxR, maxC);
+        print_col(i-X_CORRECTION, fftAvg[i], maxR, maxC, pattern);
     }
-}
-
-int
-peak_amplitude(unsigned int* fftAvg, int len)
-{
-    int i, peak = fftAvg[0];
-    for(i=0; i<len; i++) {
-        if(fftAvg[i] > peak) peak = fftAvg[i];
-    }
-    return peak;
 }
 
 void
@@ -125,10 +115,14 @@ main_event()
     bool over = false;
     fd_set set;
     int ret;
+	int c;
 	int cnt = 0; // used to set resolution (wether to skip / not to skip a read)
     uint32_t sampleRate = 0;
     int nsamples = N_SAMPLES; // adapt processing to sample rate
     int sEnergyLen = N_SAMPLES/32;
+	PATTERN pattern = CURVE;
+	int statusHeight = 0;
+	int statusCol = 0;
 
     // open mpd fifo
     while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
@@ -155,9 +149,25 @@ main_event()
 #endif
 
     while(!over) {
-        if (wgetch(stdscr) == 'q') {
+        if ((c = wgetch(stdscr)) == 'q') {
             over = true;
-        }
+        } else if (c == ' ') {
+			pattern = (pattern + 1) % 4;
+		} else if (c == KEY_UP) {
+			statusHeight -= 1;
+		} else if (c == KEY_DOWN) {
+			statusHeight += 1;
+		} else if (c == KEY_LEFT) {
+			statusCol -= 1;
+		} else if (c == KEY_RIGHT) {
+			statusCol += 1;
+		} else if (c == 'r') {
+			statusCol = 0;
+			statusHeight = 0;
+		} else if (c == 'h') {
+			print_help(maxR,maxC);
+		}
+
         // select on fifo socket
         // if > 0 means data to be read
         if ((ret = select(fifo+1, &set, NULL, NULL, NULL)) > 0) {
@@ -195,21 +205,22 @@ main_event()
             // clear screen for printing (only if new data on fifo)
 			if(cnt == NICENESS) {
             	erase();
-           		print_visual(fftAvg);
+           		print_visual(fftAvg, pattern);
 			}
         }
 #ifdef STATUS_CHECK
         // print mpd status even if no new data is avaiable
-        print_mpd_status(status, maxC, maxR/2+maxR/6);
         if (status && status->song && status->song->duration_sec) {
             print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, \
-                    peak_amplitude(fftAvg, maxC), 5*test_beat(fftEHist, sEnergyLen, sEnergy));
+                    0, 5*test_beat(fftEHist, sEnergyLen, sEnergy));
         }
+        print_mpd_status(status, maxC, statusHeight+maxR/2+maxR/6, statusCol);
 #endif
         // refresh screen
         refresh();
 	    getmaxyx(stdscr, maxR, maxC);
     }
+
 #ifdef STATUS_CHECK
     close_connection(session);
     free_status_st(status);
@@ -225,14 +236,15 @@ int
 main(int argc, char *argv[])
 {
 	WINDOW *mainwin;
-#ifdef STATUS_CHECK
-    setlocale(LC_ALL, "");
-    import_var_from_settings();
-#endif
 
 	if((mainwin = curses_init()) == NULL){
 		exit(EXIT_FAILURE);
 	}
+#ifdef STATUS_CHECK
+    setlocale(LC_ALL, "");
+    import_var_from_settings();
+	keypad(stdscr, TRUE); // arrow keys
+#endif
 
 	// get screen properties
 	getmaxyx(stdscr, maxR, maxC);

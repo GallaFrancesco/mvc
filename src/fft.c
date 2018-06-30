@@ -116,7 +116,7 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 	int i, j, step, k=0;
 	unsigned int avg;
     // N_SAMPLES / maximum number of columns
-    step = inLen/(max);
+    step = inLen/max;
 	for(i=0; i<inLen; i=i+step){
 		avg = 0;
 		for(j=0; j<step; j++){

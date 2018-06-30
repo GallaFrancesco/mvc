@@ -1,8 +1,11 @@
+#include <stdbool.h>
+
 #include "utils_curses.h"
 #include "utils_mpd.h"
 #include "string.h"
+#include "settings.h"
 
-#include <stdbool.h>
+
 // initialize color pairs
 // used in print_col
 void
@@ -35,28 +38,83 @@ curses_init()
 	return w;
 }
 
-// print a column to screen
-// while doing so, perform a rotation of the color
-// modify here to change color output
 void
-print_col(int col, int l, const int maxR, const int maxC)
+print_pattern(int col, int row, int l, const int maxR, PATTERN pattern)
 {
-	int row, changeCol;
-	int color = 5;
+	switch(pattern) {
+		case CURVE:
+			if (row > maxR-l && row < maxR-l/3) { // center of the screen
+				mvaddch(row, col, FULL);
+			} else {
+				mvaddch(row, col, EMPTY);
+			}
+			break;
 
-	/*for(row=maxR; row>=0; row--){*/
-    for (row=0; row<maxR; row++){
-        if (col < maxC) {
-            color++;
-            changeCol = color % 6;
-            color_set(changeCol, NULL);
-            if ((row > l && row < maxR-l/3)) { // center of the screen
+		case MOUTH:
+            if (row > l && row < maxR-l/3) { // center of the screen
+                mvaddch(row, col, EMPTY);
+            } else {
+                mvaddch(row, col, FULL);
+            }
+			break;
+
+		case MOUTH_REV:
+            if (row > l && row < maxR-l/3) { // center of the screen
                 mvaddch(row, col, FULL);
             } else {
                 mvaddch(row, col, EMPTY);
             }
+			break;
+		case LINE:
+            if (row > (maxR-l) && row < maxR) { // center of the screen
+                mvaddch(row, col, FULL);
+            } else {
+                mvaddch(row, col, EMPTY);
+            }
+			break;
+		default:
+			break;
+	}
+}
+
+// print a column to screen
+// while doing so, perform a rotation of the color
+// modify here to change color output
+void
+print_col(int col, int l, const int maxR, const int maxC, PATTERN pattern)
+{
+	int row;
+	int color = 5;
+
+	/*for(row=maxR; row>=0; row--){*/
+	for (row=0; row<maxR; row++){
+        if (col < maxC) {
+            color = (color+1) % 6;
+            color_set(color, NULL);
+			print_pattern(col, row, l, maxR, pattern);
         }
 	}
+}
+
+void
+print_help(const int maxR, const int maxC)
+{
+	erase();
+    color_set(1, NULL);
+	mvprintw(0, 0, "MVC is a curses-based music visualizer");
+    color_set(2, NULL);
+	mvprintw(2, 0, "Configuration: see src/settings.h");
+	mvprintw(4, 0, "Keybindings:");
+    color_set(3, NULL);
+	mvprintw(5, 0, "* Quitting: q");
+	mvprintw(6, 0, "* Change drawing mode (style): Space bar");
+	mvprintw(7, 0, "* Move status panel (if built with libmpdclient): up / down / left / right keys");
+	mvprintw(8, 0, "* Reset status panel position: r");
+    color_set(1, NULL);
+	mvprintw(10, 0, "--> Press any key to continue.");
+	timeout(-1);
+	getch();
+	timeout(0);
 }
 
 #ifdef STATUS_CHECK
@@ -92,7 +150,7 @@ print_rate_info(const int rate, const int nsamples, const int maxC, int seed, in
 
 /* prints a STATUS structure to stdout */
 void 
-print_mpd_status(STATUS* status, const int maxC, const int row)
+print_mpd_status(STATUS* status, const int maxC, const int row, const int moveCol)
 {
     SONG* song = NULL;
     bool nullFlag = false;
@@ -130,6 +188,7 @@ print_mpd_status(STATUS* status, const int maxC, const int row)
         }
         center = maxC/2 - (maxlen)/2; 
     }
+	center += moveCol;
     srand(song->duration_sec);
     color_set(rand() % 7, NULL);
     for (i=0; i<maxlen+4; i++) {
