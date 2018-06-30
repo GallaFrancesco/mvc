@@ -52,7 +52,12 @@ From a console / terminal emulator:
 mvc
 ```
 
-**Quitting:** Press q.
+### Keybindings
+
+* **Quitting**: q.
+* **Change drawing mode (style)**: Space bar
+* **Move status panel** (if built with libmpdclient): up / down / left / right keys
+* **Reset status panel position**: r
 
 ## Configuration
 
