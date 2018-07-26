@@ -81,7 +81,7 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
     average_signal(fftBuf, nsamples, maxC, fftAvg);
 
     // compute the energy of each subband
-    energy_sub_signal(fftBuf, nsamples, nsamples/sEnergyLen, sEnergy);
+    /*energy_sub_signal(fftBuf, nsamples, nsamples/sEnergyLen, sEnergy);*/
 }
 
 void
@@ -104,10 +104,9 @@ print_visual(unsigned int* fftAvg, PATTERN pattern)
 }
 
 void
-main_event()
+main_event(int fifo)
 {
     uint16_t buf[N_SAMPLES];
-    int fifo;
 #ifdef STATUS_CHECK
     struct mpd_connection *session;
     STATUS* status = NULL;
@@ -124,9 +123,8 @@ main_event()
 	int statusHeight = 0;
 	int statusCol = 0;
 	bool toggleStatus = true;
+    short cnt_over = 0; // in case no data is available for too much
 
-    // open mpd fifo
-    while((fifo = open(MPD_FIFO, O_RDONLY)) == -1);
     // add it to select() set
     FD_ZERO(&set);
     FD_SET(fifo, &set);
@@ -185,6 +183,11 @@ main_event()
 			} else {
 				cnt++;
 			}
+        } else {
+            cnt_over++;
+            mvprintw(cnt_over-1, 0, "[ERR %d] No data available for reading from %s, is MPD playing?",cnt_over, MPD_FIFO);
+            if(cnt_over == 4) mvprintw(cnt_over+1, 0, "Exiting.");
+            if(cnt_over == 5) break;
         }
         // refresh status at SIGALRM
 #ifdef STATUS_CHECK
@@ -241,6 +244,13 @@ int
 main(int argc, char *argv[])
 {
 	WINDOW *mainwin;
+    int fifo;
+
+    // open mpd fifo
+    if ((fifo = open(MPD_FIFO, O_RDONLY)) == -1) {
+        fprintf(stderr, "Unable to open %s\n", MPD_FIFO);
+        exit(EXIT_FAILURE);
+    }
 
 	if((mainwin = curses_init()) == NULL){
 		exit(EXIT_FAILURE);
@@ -257,8 +267,9 @@ main(int argc, char *argv[])
  	cbreak();
 	nodelay(stdscr, TRUE);
 
+
 	// call the fifo processor
-    main_event();
+    main_event(fifo);
 
 	// free resources
 	endwin();
