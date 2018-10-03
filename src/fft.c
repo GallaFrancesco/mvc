@@ -115,14 +115,18 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 {
 	int i, j, step, k=0;
 	unsigned int avg;
+	int maxfreq = 0;
+
     // N_SAMPLES / maximum number of columns
     step = inLen/max;
 	for(i=0; i<inLen; i=i+step){
-		avg = 0;
+		maxfreq = 0;
 		for(j=0; j<step; j++){
-			avg += fftBuf[i+j];	
+			if (fftBuf[i+j] > maxfreq) {
+				maxfreq = fftBuf[i+j];
+			}
 		}
-		fftAvg[k++] = avg/step; //the 80 is a correction for the display
+		fftAvg[k++] = maxfreq-step; //the 80 is a correction for the display
 	}
 }
 

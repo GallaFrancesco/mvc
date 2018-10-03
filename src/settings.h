@@ -1,7 +1,7 @@
 /*
  **** MPD options
  */
-static char defHost[] = "localhost";
+static char defHost[] = "192.168.1.131";
 
 static unsigned int defPort = 6600;
 

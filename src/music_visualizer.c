@@ -99,7 +99,7 @@ print_visual(unsigned int* fftAvg, PATTERN pattern)
             fftAvg[i] = 1;
         }
         // print the column fftAvg[i]
-        print_col(i-X_CORRECTION, fftAvg[i], maxR, maxC, pattern);
+        print_col(i-X_CORRECTION, fftAvg[i], maxR, maxC, pattern, (int)fftAvg[i]);
     }
 }
 
@@ -151,7 +151,7 @@ main_event(int fifo)
         if ((c = wgetch(stdscr)) == 'q') {
             over = true;
         } else if (c == ' ') {
-			pattern = (pattern + 1) % 4;
+			pattern = (pattern + 1) % 5;
 		} else if (c == KEY_UP) {
 			statusHeight -= 1;
 		} else if (c == KEY_DOWN) {

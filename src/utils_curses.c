@@ -39,8 +39,9 @@ curses_init()
 }
 
 void
-print_pattern(int col, int row, int l, const int maxR, PATTERN pattern)
+print_pattern(int col, int row, int l, const int maxR, const int maxC, PATTERN pattern, int seed)
 {
+	bool randc;
 	switch(pattern) {
 		case CURVE:
 			if (row > maxR-l && row < maxR-l/3) { // center of the screen
@@ -72,6 +73,20 @@ print_pattern(int col, int row, int l, const int maxR, PATTERN pattern)
                 mvaddch(row, col, EMPTY);
             }
 			break;
+		case RANDOM:
+			srand(seed+row*row*row);
+			row = rand() % maxR;
+			if(seed > 28) {
+				mvaddch(row,col,FULL);
+			} else if (seed < 28 && seed > 24) {
+				mvaddch(row,col,EMPTY);
+			} else if (seed < 14 && seed > 10) {
+				mvaddch(row,col,EMPTY);
+			} else if (seed < 10) {
+				mvaddch(row,col,FULL);
+			} else {
+				mvaddch(row,col,' ');
+			}
 		default:
 			break;
 	}
@@ -81,7 +96,7 @@ print_pattern(int col, int row, int l, const int maxR, PATTERN pattern)
 // while doing so, perform a rotation of the color
 // modify here to change color output
 void
-print_col(int col, int l, const int maxR, const int maxC, PATTERN pattern)
+print_col(int col, int l, const int maxR, const int maxC, PATTERN pattern, int seed)
 {
 	int row;
 	int color = 5;
@@ -91,7 +106,7 @@ print_col(int col, int l, const int maxR, const int maxC, PATTERN pattern)
         if (col < maxC) {
             color = (color+1) % 6;
             color_set(color, NULL);
-			print_pattern(col, row, l, maxR, pattern);
+			print_pattern(col, row, l, maxR, maxC, pattern, seed);
         }
 	}
 }
