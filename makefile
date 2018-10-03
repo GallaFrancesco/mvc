@@ -22,6 +22,9 @@ nostatus:
 debug:
 	mkdir -p $(LOCPATH)/debug
 	gcc $(ALL) -o $(LOCPATH)/debug/$(NAME)_debug $(CFLAGS) $(LFLAGS) $(DEBFLAGS) $(LFLAGS_STATUS)
+prof:
+	mkdir -p $(LOCPATH)/prof
+	gcc $(ALL) -o $(LOCPATH)/prof/$(NAME)_prof $(CFLAGS) $(LFLAGS) $(LFLAGS_STATUS) -pg
 asan:
 	gcc $(ALL) -o $(LOCPATH)/debug/$(NAME)_debug_asan $(CFLAGS) $(LFLAGS) $(DEBFLAGS) -fsanitize=address
 clean:

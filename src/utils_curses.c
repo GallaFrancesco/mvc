@@ -74,7 +74,6 @@ print_pattern(int col, int row, int l, const int maxR, const int maxC, PATTERN p
             }
 			break;
 		case RANDOM:
-			srand(seed+row*row*row);
 			row = rand() % maxR;
 			if(seed > 28) {
 				mvaddch(row,col,FULL);
@@ -102,6 +101,7 @@ print_col(int col, int l, const int maxR, const int maxC, PATTERN pattern, int s
 	int color = 5;
 
 	/*for(row=maxR; row>=0; row--){*/
+	srand(seed+col*col*col);
 	for (row=0; row<maxR; row++){
         if (col < maxC) {
             color = (color+1) % 6;
