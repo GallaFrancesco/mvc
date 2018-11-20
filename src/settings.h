@@ -1,7 +1,7 @@
 /*
  **** MPD options
  */
-static char defHost[] = "localhost";
+static char defHost[] = "192.168.1.131";
 
 static unsigned int defPort = 6600;
 
@@ -31,9 +31,9 @@ static char defDBlocation[] = "~/.mpd/mpd.db";
 // seconds between each mpd status refresh
 #define STATUS_REFRESH 5
 
-// nuber of buffers whose computation is skipped (cyclically).
+// nuber of buffer reads whose computation is skipped (cyclically).
 // More skips mean less precision, nicer on older CPUs
-// 0 -> do not skip
+// 0 -> do not skip any
 // 1 -> process one out of two
 // 2 -> process one out of three
 // etc
