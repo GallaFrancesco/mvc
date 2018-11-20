@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <stdatomic.h>
+#include <pthread.h>
 
 #include "fft.h"		// fast fourier transform
 #include "utils_curses.h"
@@ -26,7 +27,6 @@ static _Atomic bool getstatus = true;
 
 static int maxR = 0;
 static int maxC = 0;
-
 
 #ifdef STATUS_CHECK
 void
@@ -98,6 +98,7 @@ print_visual(unsigned int* fftAvg, PATTERN pattern)
         if(fftAvg[i] > maxR || fftAvg[i] < 0){
             fftAvg[i] = 1;
         }
+
         // print the column fftAvg[i]
         print_col(i-X_CORRECTION, fftAvg[i], maxR, maxC, pattern, (int)fftAvg[i]);
     }
@@ -106,6 +107,9 @@ print_visual(unsigned int* fftAvg, PATTERN pattern)
 void
 main_event(int fifo)
 {
+#ifdef THREADED
+	pthread_t tid;
+#endif
     uint16_t buf[N_SAMPLES];
 #ifdef STATUS_CHECK
     struct mpd_connection *session;
@@ -183,11 +187,12 @@ main_event(int fifo)
 			} else {
 				cnt++;
 			}
+			cnt_over--;
         } else {
             cnt_over++;
             mvprintw(cnt_over-1, 0, "[ERR %d] No data available for reading from %s, is MPD playing?",cnt_over, MPD_FIFO);
-            if(cnt_over == 4) mvprintw(cnt_over+1, 0, "Exiting.");
-            if(cnt_over == 5) break;
+            if(cnt_over == 9) mvprintw(cnt_over+1, 0, "Exiting.");
+            if(cnt_over == 10) break;
         }
         // refresh status at SIGALRM
 #ifdef STATUS_CHECK
@@ -211,7 +216,7 @@ main_event(int fifo)
             // clear screen for printing (only if new data on fifo)
 			if(cnt == NICENESS) {
             	erase();
-           		print_visual(fftAvg, pattern);
+				print_visual(fftAvg, pattern);
 			}
         }
 #ifdef STATUS_CHECK

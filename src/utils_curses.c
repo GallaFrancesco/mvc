@@ -101,7 +101,7 @@ print_col(int col, int l, const int maxR, const int maxC, PATTERN pattern, int s
 	int color = 5;
 
 	/*for(row=maxR; row>=0; row--){*/
-	srand(seed+col*col*col);
+	if (pattern == RANDOM) srand(seed);
 	for (row=0; row<maxR; row++){
         if (col < maxC) {
             color = (color+1) % 6;
