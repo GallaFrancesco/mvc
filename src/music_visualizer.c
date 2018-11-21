@@ -23,7 +23,7 @@
 static _Atomic bool getstatus = true;
 #endif
 
-#define BEATC 27 // experiment with it
+#define BEATC 25 // experiment with it
 
 static int maxR = 0;
 static int maxC = 0;
@@ -45,6 +45,7 @@ alarm_status()
 }
 #endif
 
+// TODO improve and use
 int
 test_beat(unsigned int* fftEHist, int sEnergyLen, unsigned int* sEnergy)
 {
@@ -54,16 +55,14 @@ test_beat(unsigned int* fftEHist, int sEnergyLen, unsigned int* sEnergy)
         for(j=sEnergyLen-1; j>=0; j--) {
             fftEHist[j] = fftEHist[j-1];  
         }
+
         // insert element
         fftEHist[0] =  sEnergy[i];
-    
+
+		// check sound energy for beat
         for(j=0; j<sEnergyLen; j++) {
-            /*fprintf(stderr, "- %d - %d\n", sEnergy[i], fftEHist[j]);*/
             if (sEnergy[i] > fftEHist[j]+BEATC && sEnergy[i] < 200) { // 200 avg would be false read
-                /*fprintf(stderr, "beat: %d - %d\n", sEnergy[i], fftEHist[j]);*/
                 return 1;
-                /*} else {*/
-                /*fprintf(stderr, "no beat!");*/
             }
         }
     }
@@ -81,7 +80,7 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
     average_signal(fftBuf, nsamples, maxC, fftAvg);
 
     // compute the energy of each subband
-    /*energy_sub_signal(fftBuf, nsamples, nsamples/sEnergyLen, sEnergy);*/
+	energy_sub_signal(fftBuf, nsamples, nsamples/sEnergyLen, sEnergy);
 }
 
 void
@@ -223,8 +222,7 @@ main_event(int fifo)
         // print mpd status even if no new data is avaiable
 		if (toggleStatus) {
 			if (status && status->song && status->song->duration_sec) {
-				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, \
-						0, 5*test_beat(fftEHist, sEnergyLen, sEnergy));
+				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec);
 			}
 			print_mpd_status(status, maxC, statusHeight+maxR/2+maxR/6, statusCol);
 		}

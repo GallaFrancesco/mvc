@@ -20,7 +20,7 @@ init_color_pairs()
         init_pair(4, COLOR_BLUE,    -1);
         init_pair(5, COLOR_CYAN,    -1);
         init_pair(6, COLOR_MAGENTA, -1);
-        init_pair(8, COLOR_WHITE,   -1);		
+        init_pair(8, COLOR_WHITE,   -1);
 	}
 }
 
@@ -135,7 +135,7 @@ print_help(const int maxR, const int maxC)
 
 #ifdef STATUS_CHECK
 void
-print_rate_info(const int rate, const int nsamples, const int maxC, int seed, int amplitude,int beat)
+print_rate_info(const int rate, const int nsamples, const int maxC, int seed)
 {
     int center = (int) maxC/2-18; // adjust to screen center
     int i;
@@ -148,24 +148,16 @@ print_rate_info(const int rate, const int nsamples, const int maxC, int seed, in
         mvprintw(2, center, " -------------[mvc]--------------- ", rate, nsamples);
     } else if (rate == 0) {
         mvprintw(0, center, " ----------------------------- ", rate, nsamples);
-        mvprintw(2+beat, center, " -----------[mvc]------------- ", rate, nsamples);
+        mvprintw(2, center, " -----------[mvc]------------- ", rate, nsamples);
     } else {
         mvprintw(0, center, " -------------------------------- ", rate, nsamples);
-        mvprintw(2+beat, center, " ------------[mvc]--------------- ", rate, nsamples);
-    }
-    for(i=0; i<amplitude-60+beat; i++) {
-        mvaddch(0, center-i, '-');
-        mvaddch(2, center-i, '-');
-        mvaddch(1, center-i, '|');
-        mvaddch(1, center+34+i, '|');
-        mvaddch(0, center+34+i, '-');
-        mvaddch(2, center+34+i, '-');
+        mvprintw(2, center, " ------------[mvc]--------------- ", rate, nsamples);
     }
 }
 
 
 /* prints a STATUS structure to stdout */
-void 
+void
 print_mpd_status(STATUS* status, const int maxC, const int row, const int moveCol)
 {
     SONG* song = NULL;

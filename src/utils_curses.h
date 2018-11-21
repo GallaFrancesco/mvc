@@ -9,7 +9,7 @@ typedef enum {CURVE=0, MOUTH=1, MOUTH_REV=2, LINE=3, RANDOM=4} PATTERN;
 void init_color_pairs();
 WINDOW* curses_init();
 void print_col(int col, int length, const int maxR, const int maxC, PATTERN pattern, int seed);
-void print_rate_info(const int rate, const int nsamples, const int maxC, int seed, int amplitude, int beat);
+void print_rate_info(const int rate, const int nsamples, const int maxC, int seed);
 void print_help(const int maxR, const int maxC);
 
 #ifdef STATUS_CHECK
