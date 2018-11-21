@@ -151,25 +151,26 @@ main_event(int fifo)
 #endif
 
     while(!over) {
-        if ((c = wgetch(stdscr)) == 'q') {
-            over = true;
-        } else if (c == ' ') {
-			pattern = (pattern + 1) % 5;
-		} else if (c == KEY_UP) {
-			statusHeight -= 1;
-		} else if (c == KEY_DOWN) {
-			statusHeight += 1;
-		} else if (c == KEY_LEFT) {
-			statusCol -= 1;
-		} else if (c == KEY_RIGHT) {
-			statusCol += 1;
-		} else if (c == 'r') {
-			statusCol = 0;
-			statusHeight = 0;
-		} else if (c == 'h') {
-			print_help(maxR,maxC);
-		} else if (c == 't') {
-			toggleStatus = (toggleStatus == true) ? false : true;
+		switch((c = wgetch(stdscr))) {
+			case 'q':
+				over = true;
+			case ' ':
+				pattern = (pattern + 1) % 5;
+			case KEY_UP:
+				statusHeight -= 1;
+			case KEY_DOWN:
+				statusHeight += 1;
+			case KEY_LEFT:
+				statusCol -= 1;
+			case KEY_RIGHT:
+				statusCol += 1;
+			case 'r':
+				statusCol = 0;
+				statusHeight = 0;
+			case 'h':
+				print_help(maxR,maxC);
+			case 't':
+				toggleStatus = (toggleStatus == true) ? false : true;
 		}
 
         // select on fifo socket
