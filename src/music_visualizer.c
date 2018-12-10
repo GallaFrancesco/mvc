@@ -154,23 +154,34 @@ main_event(int fifo)
 		switch((c = wgetch(stdscr))) {
 			case 'q':
 				over = true;
+				break;
 			case ' ':
 				pattern = (pattern + 1) % 5;
+				break;
 			case KEY_UP:
 				statusHeight -= 1;
+				break;
 			case KEY_DOWN:
 				statusHeight += 1;
+				break;
 			case KEY_LEFT:
 				statusCol -= 1;
+				break;
 			case KEY_RIGHT:
 				statusCol += 1;
+				break;
 			case 'r':
 				statusCol = 0;
 				statusHeight = 0;
+				break;
 			case 'h':
 				print_help(maxR,maxC);
+				break;
 			case 't':
 				toggleStatus = (toggleStatus == true) ? false : true;
+				break;
+			default:
+				break;
 		}
 
         // select on fifo socket
