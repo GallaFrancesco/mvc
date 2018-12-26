@@ -15,6 +15,7 @@
 #include "fft.h"		// fast fourier transform
 #include "utils_curses.h"
 #include "settings.h"
+#include "mt/mt19937ar.h"
 
 #ifdef STATUS_CHECK
 #include <locale.h>
@@ -275,6 +276,9 @@ main(int argc, char *argv[])
     import_var_from_settings();
 	keypad(stdscr, TRUE); // arrow keys
 #endif
+
+	unsigned long init[4]={0x123, 0x234, 0x345, 0x456}, length=4;
+	init_genrand(time(NULL));
 
 	// get screen properties
 	getmaxyx(stdscr, maxR, maxC);

@@ -4,6 +4,7 @@
 #include "utils_mpd.h"
 #include "string.h"
 #include "settings.h"
+#include "mt/mt19937ar.h"
 
 
 // initialize color pairs
@@ -74,7 +75,7 @@ print_pattern(int col, int row, int l, const int maxR, const int maxC, PATTERN p
             }
 			break;
 		case RANDOM:
-			row = rand() % maxR;
+			row = genrand_int32() % maxR;
 			if(seed > 28) {
 				mvaddch(row,col,FULL);
 			} else if (seed < 28 && seed > 24) {
@@ -101,7 +102,6 @@ print_col(int col, int l, const int maxR, const int maxC, PATTERN pattern, int s
 	int color = 5;
 
 	/*for(row=maxR; row>=0; row--){*/
-	if (pattern == RANDOM) srand(seed);
 	for (row=0; row<maxR; row++){
         if (col < maxC) {
             color = (color+1) % 6;

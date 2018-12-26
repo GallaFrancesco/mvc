@@ -1,8 +1,7 @@
-SRC = src/settings.h src/fft.c src/utils_curses.c src/music_visualizer.c src/utils_mpd.c
-ALL = $(SRC)
+SRC = src/settings.h src/fft.c src/utils_curses.c src/music_visualizer.c src/utils_mpd.c src/mt/mt19937ar.c
 LOCPATH = ./bin
 INSTALLPATH = /usr/local
-CFLAGS = -O2
+CFLAGS = -O3
 LFLAGS =  -lm -lncursesw -ldl #-ltinfo #-lasound
 DEBFLAGS = -g -Wall
 NAME = mvc
@@ -15,18 +14,18 @@ endif
 
 all:
 	mkdir -p $(LOCPATH)
-	gcc $(ALL) -o $(LOCPATH)/$(NAME) $(CFLAGS) $(LFLAGS) $(LFLAGS_STATUS)
+	gcc $(SRC) -o $(LOCPATH)/$(NAME) $(CFLAGS) $(LFLAGS) $(LFLAGS_STATUS)
 nostatus:
 	mkdir -p $(LOCPATH)
-	gcc $(ALL) -o $(LOCPATH)/$(NAME) -O2 $(LFLAGS)
+	gcc $(SRC) -o $(LOCPATH)/$(NAME) -O2 $(LFLAGS)
 debug:
 	mkdir -p $(LOCPATH)/debug
-	gcc $(ALL) -o $(LOCPATH)/debug/$(NAME)_debug $(CFLAGS) $(LFLAGS) $(DEBFLAGS) $(LFLAGS_STATUS)
+	gcc $(SRC) -o $(LOCPATH)/debug/$(NAME)_debug $(CFLAGS) $(LFLAGS) $(DEBFLAGS) $(LFLAGS_STATUS)
 prof:
 	mkdir -p $(LOCPATH)/prof
-	gcc $(ALL) -o $(LOCPATH)/prof/$(NAME)_prof $(CFLAGS) $(LFLAGS) $(LFLAGS_STATUS) -pg
+	gcc $(SRC) -o $(LOCPATH)/prof/$(NAME)_prof $(CFLAGS) $(LFLAGS) $(LFLAGS_STATUS) -pg
 asan:
-	gcc $(ALL) -o $(LOCPATH)/debug/$(NAME)_debug_asan $(CFLAGS) $(LFLAGS) $(DEBFLAGS) -fsanitize=address
+	gcc $(SRC) -o $(LOCPATH)/debug/$(NAME)_debug_asan $(CFLAGS) $(LFLAGS) $(DEBFLAGS) -fsanitize=address
 clean:
 	rm $(LOCPATH)/$(NAME)
 	rm $(LOCPATH)/debug/$(NAME)_debug
