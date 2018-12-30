@@ -4,7 +4,7 @@
 #ifdef STATUS_CHECK
 
 // same of mpd.conf
-static char defHost[] = "192.168.1.131";
+static char defHost[] = "localhost";
 
 static unsigned int defPort = 6600;
 
@@ -31,7 +31,7 @@ static char defDBlocation[] = "~/.mpd/mpd.db";
 
 // number of samples
 // (POWER OF 2)
-#define N_SAMPLES 1024
+#define N_SAMPLES 2048
 
 // if adaptive sampling should be used
 // (adjust N_SAMPLES to sample rate of current song)
