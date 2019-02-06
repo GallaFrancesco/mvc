@@ -55,5 +55,9 @@ static char defDBlocation[] = "~/.mpd/mpd.db";
 #define Y_CORRECTION 28
 
 // adjust lateral shift on screen
-// might prevent full borders from being printed, adjust
-#define X_CORRECTION 1
+// some optimal values are provided
+// adjust based on terminal dimensions
+
+//#define X_CORRECTION 8 // 1920x1080 screens (16:9)
+#define X_CORRECTION 1 // 1280x1024 screens (5:4)
+
