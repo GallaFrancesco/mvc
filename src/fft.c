@@ -117,6 +117,25 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 	unsigned int avg;
 	int maxfreq = 0;
 
+	int NADJ=4;
+	int boost=8;
+	step=1;
+	for(i=0; i<inLen/2; i=i+2*NADJ) {
+		if(i - NADJ >= 0 && i+NADJ < k && \
+				fftBuf[i] >= fftBuf[i-NADJ] + 2 && \
+				fftBuf[i] >= fftBuf[i+NADJ] + 2) {
+			fftBuf[i] += boost;
+			printf("ciao");
+			for(j=1; j<NADJ; ++j) {
+				fftBuf[i-j] += boost/(boost-step);
+				fftBuf[i+j] = fftBuf[i-j];
+				step += boost/NADJ;
+				fftBuf[i+inLen/2+j] = fftBuf[i+j];
+				fftBuf[i+inLen/2-j] = fftBuf[i-j];
+			}
+		}
+	}
+
     // N_SAMPLES / maximum number of columns
     step = inLen/max;
 	for(i=0; i<inLen; i=i+step){
@@ -128,6 +147,7 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 		}
 		fftAvg[k++] = maxfreq-step; //the 80 is a correction for the display
 	}
+
 }
 
 void

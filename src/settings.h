@@ -31,7 +31,7 @@ static char defDBlocation[] = "~/.mpd/mpd.db";
 
 // number of samples
 // (POWER OF 2)
-#define N_SAMPLES 2048
+#define N_SAMPLES 1024
 
 // if adaptive sampling should be used
 // (adjust N_SAMPLES to sample rate of current song)
