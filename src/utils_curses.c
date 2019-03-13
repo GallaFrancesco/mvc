@@ -47,30 +47,34 @@ print_pattern(int col, int row, int l, const int maxR, const int maxC, PATTERN p
 		case CURVE:
 			if (row > maxR-l && row < maxR-l/3) { // center of the screen
 				mvaddch(row, col, FULL);
-			} else {
+			} else if (row == maxR-l) { // center of the screen
+				mvaddch(row, col, HALFFULL);
+			} else if (row == maxR-l/3) { // center of the screen
+				mvaddch(row, col, HALFEMPTY);
+			} else if(EMPTY != ' ') {
 				mvaddch(row, col, EMPTY);
 			}
 			break;
 
 		case MOUTH:
-            if (row > l && row < maxR-l/3) { // center of the screen
-                mvaddch(row, col, EMPTY);
-            } else {
+            if (!(row > l && row < maxR-l/3)) { // center of the screen
                 mvaddch(row, col, FULL);
+			} else if(EMPTY != ' ') {
+                mvaddch(row, col, EMPTY);
             }
 			break;
 
 		case MOUTH_REV:
             if (row > l && row < maxR-l/3) { // center of the screen
                 mvaddch(row, col, FULL);
-            } else {
+			} else if(EMPTY != ' ') {
                 mvaddch(row, col, EMPTY);
             }
 			break;
 		case LINE:
             if (row > (maxR-l) && row < maxR) { // center of the screen
                 mvaddch(row, col, FULL);
-            } else {
+			} else if(EMPTY != ' ') {
                 mvaddch(row, col, EMPTY);
             }
 			break;
@@ -81,9 +85,9 @@ print_pattern(int col, int row, int l, const int maxR, const int maxC, PATTERN p
 			} else if (seed < 28 && seed > 24) {
 				mvaddch(row,col,EMPTY);
 			} else if (seed < 14 && seed > 10) {
-				mvaddch(row,col,EMPTY);
+				mvaddch(row,col,HALFEMPTY);
 			} else if (seed < 10) {
-				mvaddch(row,col,FULL);
+				mvaddch(row,col,HALFFULL);
 			} else {
 				mvaddch(row,col,' ');
 			}

@@ -104,8 +104,8 @@ print_visual(unsigned int* fftAvg, PATTERN pattern)
     }
 }
 
-void
-main_event(int fifo)
+int
+main_event(int fifo, WINDOW* mainwin)
 {
 #ifdef THREADED
 	pthread_t tid;
@@ -138,7 +138,7 @@ main_event(int fifo)
     unsigned int* fftAvg = (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
     unsigned int* fftEHist = (unsigned int*)malloc(sEnergyLen*sizeof(unsigned int));
     unsigned int* sEnergy = (unsigned int*)malloc(sEnergyLen*sizeof(unsigned int));
-    /*// set the result buffer to 0s*/
+	// set the result buffer to 0s
     memset(fftBuf, 0, N_SAMPLES*sizeof(unsigned int));
     memset(fftAvg, 0, N_SAMPLES*sizeof(unsigned int));
     memset(fftEHist, 0, sEnergyLen*sizeof(unsigned int));
@@ -199,12 +199,10 @@ main_event(int fifo)
 			} else {
 				cnt++;
 			}
-			cnt_over--;
+			cnt_over = 0;
         } else {
             cnt_over++;
-            mvprintw(cnt_over-1, 0, "[ERR %d] No data available for reading from %s, is MPD playing?",cnt_over, MPD_FIFO);
-            if(cnt_over == 9) mvprintw(cnt_over+1, 0, "Exiting.");
-            if(cnt_over == 10) break;
+			if (cnt_over == 5) break;
         }
         // refresh status at SIGALRM
 #ifdef STATUS_CHECK
@@ -236,10 +234,12 @@ main_event(int fifo)
 		if (toggleStatus) {
 			if (status && status->song && status->song->duration_sec) {
 				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec);
+				cnt_over = 0;
 			}
-			print_mpd_status(status, maxC, statusHeight+maxR/2+maxR/6, statusCol);
+			print_mpd_status(status, maxC, statusHeight+maxR/6, statusCol);
 		}
 #endif
+		box(mainwin, 0, 0);
         // refresh screen
         refresh();
 	    getmaxyx(stdscr, maxR, maxC);
@@ -254,6 +254,9 @@ main_event(int fifo)
     free(fftEHist);
     free(sEnergy);
     close(fifo);
+    if(cnt_over) return 1;
+
+	return 0;
 }
 
 int
@@ -271,6 +274,7 @@ main(int argc, char *argv[])
 	if((mainwin = curses_init()) == NULL){
 		exit(EXIT_FAILURE);
 	}
+
 #ifdef STATUS_CHECK
     setlocale(LC_ALL, "");
     import_var_from_settings();
@@ -288,10 +292,14 @@ main(int argc, char *argv[])
 
 
 	// call the fifo processor
-    main_event(fifo);
+    int res = main_event(fifo, mainwin);
 
 	// free resources
 	endwin();
 	delwin(mainwin);
+
+	if(res) fprintf(stderr, "No data in %s\nExited.\n", MPD_FIFO);
+	else fprintf(stdout, "Received exit command.\n");
+
 	return 0;
 }

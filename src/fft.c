@@ -1,4 +1,5 @@
 #include "fft.h"
+#include "settings.h"
 
 /* if flag is EVEN (0), it takes only the even elements
  * otherwise if flag is ODD (1) it takes only the odd ones
@@ -120,12 +121,12 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 	int NADJ=4;
 	int boost=8;
 	step=1;
+
 	for(i=0; i<inLen/2; i=i+2*NADJ) {
 		if(i - NADJ >= 0 && i+NADJ < k && \
 				fftBuf[i] >= fftBuf[i-NADJ] + 2 && \
 				fftBuf[i] >= fftBuf[i+NADJ] + 2) {
 			fftBuf[i] += boost;
-			printf("ciao");
 			for(j=1; j<NADJ; ++j) {
 				fftBuf[i-j] += boost/(boost-step);
 				fftBuf[i+j] = fftBuf[i-j];
@@ -137,7 +138,7 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 	}
 
     // N_SAMPLES / maximum number of columns
-    step = inLen/max;
+    step = inLen*FOCUS/max;
 	for(i=0; i<inLen; i=i+step){
 		maxfreq = 0;
 		for(j=0; j<step; j++){
@@ -145,7 +146,12 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 				maxfreq = fftBuf[i+j];
 			}
 		}
-		fftAvg[k++] = maxfreq-step; //the 80 is a correction for the display
+		fftAvg[k] = maxfreq-step/FOCUS; //the 80 is a correction for the display
+
+		for(j=1; j<FOCUS; ++j) {
+			fftAvg[k+j] = fftAvg[k]; //the 80 is a correction for the display
+		}
+		k += FOCUS;
 	}
 
 }
