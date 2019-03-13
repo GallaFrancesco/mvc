@@ -202,7 +202,7 @@ main_event(int fifo, WINDOW* mainwin)
 			cnt_over = 0;
         } else {
             cnt_over++;
-			if (cnt_over == 5) break;
+			if (cnt_over == 60) break; // wait ~ 1 min
         }
         // refresh status at SIGALRM
 #ifdef STATUS_CHECK
