@@ -27,8 +27,8 @@ prof:
 asan:
 	gcc $(SRC) -o $(LOCPATH)/debug/$(NAME)_debug_asan $(CFLAGS) $(LFLAGS) $(DEBFLAGS) -fsanitize=address
 clean:
-	rm $(LOCPATH)/$(NAME)
-	rm $(LOCPATH)/debug/$(NAME)_debug
+	rm -f $(LOCPATH)/$(NAME)
+	rm -f $(LOCPATH)/debug/$(NAME)_debug
 distclean:
 	rm -r $(LOCPATH)
 install:
