@@ -2,6 +2,10 @@
 
 Minimal MPD music visualizer, based on curses. Works by reading the fifo output of an MPD instance.
 
+![Example1](./pics/pic1.png)
+![Example2](./pics/pic2.png)
+![Example3](./pics/pic3.png)
+
 ## Requirements
 
 **ncurses** and **GCC** (or another C99 compatible compiler).
