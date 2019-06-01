@@ -39,16 +39,16 @@ static char defDBlocation[] = "~/.mpd/mpd.db";
 // EMPTY == 0 (char is not set)
 //
 // PRESET 1: vertical sharp
-//#define FULL '|'
-//#define HALFFULL '|'
-//#define HALFEMPTY '.'
-//#define EMPTY ' '
+#define FULL '|'
+#define HALFFULL '|'
+#define HALFEMPTY '-'
+#define EMPTY ' '
 
 //// PRESET 2: shadow
-#define FULL ':'
-#define HALFFULL '|'
-#define HALFEMPTY ' '
-#define EMPTY '.'
+//#define FULL ':'
+//#define HALFFULL '|'
+//#define HALFEMPTY ' '
+//#define EMPTY '.'
 
 // PRESET 3: colorful
 //#define FULL 'X'

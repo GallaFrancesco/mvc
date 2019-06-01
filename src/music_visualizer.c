@@ -123,7 +123,7 @@ main_event(int fifo, WINDOW* mainwin)
     uint32_t sampleRate = 0;
     int nsamples = N_SAMPLES; // adapt processing to sample rate
     int sEnergyLen = N_SAMPLES/32;
-	PATTERN pattern = CURVE;
+	PATTERN pattern = ANOTHER;
 	int statusHeight = 0;
 	int statusCol = 0;
 	bool toggleStatus = true;
@@ -157,7 +157,7 @@ main_event(int fifo, WINDOW* mainwin)
 				over = true;
 				break;
 			case ' ':
-				pattern = (pattern + 1) % 5;
+				pattern = (pattern + 1) % 6;
 				break;
 			case KEY_UP:
 				statusHeight -= 1;
@@ -298,8 +298,8 @@ main(int argc, char *argv[])
 	endwin();
 	delwin(mainwin);
 
-	if(res) fprintf(stderr, "No data in %s\nExited.\n", MPD_FIFO);
-	else fprintf(stdout, "Received exit command.\n");
+	if(res) fprintf(stderr, "No data in %s\nQuit.\n", MPD_FIFO);
+	else fprintf(stdout, "Received exit command.\nQuit.");
 
 	return 0;
 }

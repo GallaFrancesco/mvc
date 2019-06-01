@@ -4,7 +4,7 @@
 #include "utils_mpd.h"
 
 
-typedef enum {CURVE=0, MOUTH=1, MOUTH_REV=2, LINE=3, RANDOM=4} PATTERN;
+typedef enum {CURVE=0, MOUTH=1, MOUTH_REV=2, LINE=3, RANDOM=4, ANOTHER=5} PATTERN;
 
 void init_color_pairs();
 WINDOW* curses_init();
