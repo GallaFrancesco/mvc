@@ -139,7 +139,7 @@ print_help(const int maxR, const int maxC)
 	mvprintw(7, 0, "* Move status panel (if built with libmpdclient): up / down / left / right keys");
 	mvprintw(8, 0, "* Reset status panel position: r");
 	mvprintw(9, 0, "* Toggle status display: t");
-	mvprintw(9, 0, "* Print this help: h");
+	mvprintw(10, 0, "* Print this help: h");
     color_set(1, NULL);
 	mvprintw(11, 0, "--> Press any key to continue.");
 	timeout(-1);
