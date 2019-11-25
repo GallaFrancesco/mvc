@@ -2,7 +2,7 @@ SRC = src/settings.h src/fft.c src/utils_curses.c src/music_visualizer.c src/uti
 LOCPATH = ./bin
 INSTALLPATH = /usr/local
 CFLAGS = -O3
-LFLAGS =  -lm -lncursesw -ldl #-ltinfo #-lasound
+LFLAGS =  -lm -lncurses -ldl -ltinfo #-lasound
 DEBFLAGS = -g -Wall
 NAME = mvc
 
