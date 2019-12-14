@@ -71,19 +71,6 @@ amplitude(cplx c, const unsigned int n)
   return round(20*log10(sq)); // dB scale
 }
 
-/**
- * Not used anymore
-void
-normalize_fft(const int inLen, unsigned int* fftSig)
-{
-  int i;
-  for(i=0; i<inLen; i++){
-    fftSig[i] = (int)(10*fftSig[i]/(20*log10(fftSig[512])));
-    fprintf(stderr, "%d\n", fftSig[i]);
-  }
-}
-*/
-
 void
 fast_fft(const int inLen, uint16_t *sig, unsigned int *fftSig)
 {
@@ -135,21 +122,12 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 
 }
 
-void
-energy_sub_signal(unsigned int *fftBuf, int inLen, int outLen, unsigned int* fftSEnergy)
+// compute the average energy of a sample array (in amplitude form)
+void avgEnergy(unsigned int* fftBuf, const int inLen, unsigned int* energyBuf)
 {
-    // given sound amplitudes in a buffer, divide it into `outLen` subbands,
-    // compute the energy of the subband
-    // store it in fftEnergy
-    int i, k;
-    double val;
-
-    for(i=0; i<outLen; i++)
-    {
-        fftSEnergy[i] = 0;
-        for(k=outLen*i; k<outLen*(i+1); k++) {
-            val = outLen*fftBuf[k]/inLen;
-            fftSEnergy[i] += (int)(val);
-        }
+    unsigned int i;
+    for(i=0; i<inLen; ++i) {
+        *energyBuf += pow(fftBuf[i], 2);
     }
+    *energyBuf = (unsigned int)*energyBuf/inLen;
 }

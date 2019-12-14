@@ -14,6 +14,7 @@
 
 #include "fft.h"		// fast fourier transform
 #include "utils_curses.h"
+#include "beat_track.h"
 #include "settings.h"
 #include "mt/mt19937ar.h"
 
@@ -22,23 +23,6 @@
 #include <mpd/client.h> // status
 #include "utils_mpd.h"
 static _Atomic bool getstatus = true;
-#endif
-
-#define BEATC 25 // experiment with it
-
-static int maxR = 0;
-static int maxC = 0;
-
-#ifdef STATUS_CHECK
-void
-get_mpd_status(struct mpd_connection* session, STATUS* status)
-{
-    if(!session) {
-        session = open_connection();
-    }
-    status = get_current_status(session);
-}
-
 void
 alarm_status()
 {
@@ -46,42 +30,36 @@ alarm_status()
 }
 #endif
 
-// TODO improve and use
-int
-test_beat(unsigned int* fftEHist, int sEnergyLen, unsigned int* sEnergy)
-{
-    int i,j;
-    for(i=0; i<sEnergyLen; i++) {
-        // shift right
-        for(j=sEnergyLen-1; j>=0; j--) {
-            fftEHist[j] = fftEHist[j-1];  
-        }
+#define BEATC 25 // experiment with it
 
-        // insert element
-        fftEHist[0] =  sEnergy[i];
-
-		// check sound energy for beat
-        for(j=0; j<sEnergyLen; j++) {
-            if (sEnergy[i] > fftEHist[j]+BEATC && sEnergy[i] < 200) { // 200 avg would be false read
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
+static int maxR = 0;
+static int maxC = 0;
 
 void
 process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
-        unsigned int* sEnergy, int nsamples, int sEnergyLen)
+              cebuffer* energyBuffer, int nsamples, unsigned int* energyThreshold)
 {
+    // fft of samples array
     fast_fft(nsamples, (uint16_t*)buf, fftBuf);
 
     // computes an average of the signals in fftBuf
     // based on the number of columns of the screen
     average_signal(fftBuf, nsamples, maxC, fftAvg);
 
-    // compute the energy of each subband
-	energy_sub_signal(fftBuf, nsamples, nsamples/sEnergyLen, sEnergy);
+    unsigned int avg = 0;
+    if(energyBuffer->count > 0) {
+        // compute the energy of the samples array
+        avgEnergy(fftBuf, nsamples, &avg);
+        fprintf(stderr, "Computed avg: %d\n", avg);
+
+        bool beat = cb_beat(energyBuffer, avg, energyThreshold);
+        if(beat) {
+            fprintf(stderr, "BEAT!\n");
+        }
+    }
+
+    // insert the current energy sample into the circular buffer
+    cb_push_back(energyBuffer, avg);
 }
 
 void
@@ -122,12 +100,13 @@ main_event(int fifo, WINDOW* mainwin)
 	int cnt = 0; // used to set resolution (wether to skip / not to skip a read)
     uint32_t sampleRate = 0;
     int nsamples = N_SAMPLES; // adapt processing to sample rate
-    int sEnergyLen = N_SAMPLES/32;
+    int sEnergyLen = N_SAMPLES;
 	PATTERN pattern = ANOTHER;
 	int statusHeight = 0;
 	int statusCol = 0;
 	bool toggleStatus = true;
     short cnt_over = 0; // in case no data is available for too much
+    unsigned int energyThreshold = 0;
 
     // add it to select() set
     FD_ZERO(&set);
@@ -136,13 +115,13 @@ main_event(int fifo, WINDOW* mainwin)
     // allocate buffers used
     unsigned int* fftBuf= (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
     unsigned int* fftAvg = (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
-    unsigned int* fftEHist = (unsigned int*)malloc(sEnergyLen*sizeof(unsigned int));
-    unsigned int* sEnergy = (unsigned int*)malloc(sEnergyLen*sizeof(unsigned int));
+    cebuffer energyBuffer;
+
+    cb_init(&energyBuffer, 43);
+
 	// set the result buffer to 0s
     memset(fftBuf, 0, N_SAMPLES*sizeof(unsigned int));
     memset(fftAvg, 0, N_SAMPLES*sizeof(unsigned int));
-    memset(fftEHist, 0, sEnergyLen*sizeof(unsigned int));
-    memset(sEnergy, 0, sEnergyLen*sizeof(unsigned int));
 
     // open connection to mpd and set alarm to refresh status
 #ifdef STATUS_CHECK
@@ -194,7 +173,7 @@ main_event(int fifo, WINDOW* mainwin)
             ret = read(fifo, (uint16_t*)buf, 2*nsamples);
             // process read buffer
 			if(cnt == NICENESS) {
-            	process_fifo(buf, fftBuf, fftAvg, sEnergy, nsamples, sEnergyLen);
+            	process_fifo(buf, fftBuf, fftAvg, &energyBuffer, nsamples, &energyThreshold);
 				cnt = 0;
 			} else {
 				cnt++;
@@ -251,11 +230,10 @@ main_event(int fifo, WINDOW* mainwin)
 #endif
     free(fftAvg);
     free(fftBuf);
-    free(fftEHist);
-    free(sEnergy);
+    //    cb_free(&energyBuffer);
     close(fifo);
-    if(cnt_over) return 1;
 
+    if(cnt_over) return 1;
 	return 0;
 }
 
