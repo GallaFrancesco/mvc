@@ -1,6 +1,6 @@
 # mvc
 
-Minimal MPD music visualizer, based on curses. Works by reading the fifo output of an MPD instance.
+Minimal MPD music visualizer, based on curses. Works by reading the fifo output of an MPD instance. Now with real-time beat detection and display!
 
 ![ExampleBeat](./pics/pic4.png)
 ![Example1](./pics/pic1.png)
