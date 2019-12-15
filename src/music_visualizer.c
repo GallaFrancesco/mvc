@@ -101,7 +101,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 	int statusHeight = 0;
 	int statusCol = 0;
 	bool toggleStatus = true;
-	bool subWindow = false;
+	bool subWindow = true;
     short cnt_over = 0; // in case no data is available for too much
     unsigned int energyThreshold = 0;
     bool beat = false;
@@ -216,7 +216,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, beat);
 				cnt_over = 0;
 			}
-			print_mpd_status(status, maxC, statusHeight+maxR/6, statusCol);
+			print_mpd_status(status, maxC, maxR/2-statusHeight-2, statusCol);
 		}
 #endif
         // refresh screen
@@ -224,14 +224,14 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
         wrefresh(mainwin);
 
         if(subWindow) {
-            print_subw(sub, beat, maxR/2, maxC/2);
+            print_subw(sub, beat, maxR/10, maxC);
             box(sub, 0, 0);
 
             wrefresh(sub);
 
             // refresh sub window
-            wresize(sub, maxR/2, maxC/2);
-            mvwin(sub, maxR/4, maxC/4);
+            wresize(sub, maxR/10, maxC);
+            mvwin(sub, maxR*9/10+1, 0);
         }
 
         getmaxyx(stdscr, maxR, maxC);
@@ -282,7 +282,7 @@ main(int argc, char *argv[])
 	nodelay(stdscr, TRUE);
 
     // space invaders window
-    WINDOW* sub = subwin(mainwin, maxR/2, maxC/2, maxR/4, maxC/4);
+    WINDOW* sub = subwin(mainwin, maxR/10, maxC, maxR*9/10+1, 0);
 
 	// call the fifo processor
     int res = main_event(fifo, mainwin, sub);

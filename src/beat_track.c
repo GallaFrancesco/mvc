@@ -32,6 +32,10 @@ void cb_push_back(cebuffer *cb, const energy_t item)
     } else {
         cb->count++;
     }
+    if(cb->tail > cb->capacity) {
+        cb->head -= cb->capacity;
+        cb->tail -= cb->capacity;
+    }
 }
 
 double cb_avg(cebuffer *cb)
@@ -76,7 +80,7 @@ bool cb_beat(cebuffer *cb, const energy_t item, energy_t* energyThreshold)
     bool beat = false;
 
     // compute the avg of the circular buffer up to now
-    double mult = (double)9/8;
+    double mult = (double)17/16;
     double et = mult*cb_avg(cb);
 
     if(item > et) {

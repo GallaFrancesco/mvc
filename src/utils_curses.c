@@ -130,13 +130,16 @@ print_subw(WINDOW* sub, const bool beat, const int maxR, const int maxC)
     int row, col;
     int color = 5;
 
-	int rr = genrand_int32() % maxR;
+	int rr = genrand_int32() % maxR/3;
+
+    rr += maxR/3;
 
 	for (row=0; row<maxR; ++row) {
         for(col=0; col < maxC; ++col) {
-            if(beat &&
-               row <= rr+maxR/4 && row >= rr-maxR/4 ) {
-                mvwaddch(sub, row, col, '#');
+            if(beat) { // &&
+               /* row <= rr+maxR/4 && row >= rr-maxR/4 && */
+               /* col >= maxC/3 && col <= maxC*2/3) { */
+                mvwaddch(sub, row, col, '|');
 			} else {
                 if(col % 2 == 0) {
                     mvwaddch(sub, row, col, '.');
@@ -146,7 +149,9 @@ print_subw(WINDOW* sub, const bool beat, const int maxR, const int maxC)
             }
         }
 	}
-    if(beat) mvprintw(maxR/2, maxC/2, "* CLAP *");
+    mvwprintw(sub, 1, maxC/2-6, " ---------- ");
+    mvwprintw(sub, 2, maxC/2-6, " || BEAT || ");
+    mvwprintw(sub, 3, maxC/2-6, " ---------- ");
 
 }
 
@@ -165,9 +170,10 @@ print_help(const int maxR, const int maxC)
 	mvprintw(7, 0, "* Move status panel (if built with libmpdclient): up / down / left / right keys");
 	mvprintw(8, 0, "* Reset status panel position: r");
 	mvprintw(9, 0, "* Toggle status display: t");
-	mvprintw(10, 0, "* Print this help: h");
+	mvprintw(10, 0, "* Toggle beat display: s");
+	mvprintw(11, 0, "* Print this help: h");
     color_set(1, NULL);
-	mvprintw(11, 0, "--> Press any key to continue.");
+	mvprintw(12, 0, "--> Press any key to continue.");
 	timeout(-1);
 	getch();
 	timeout(0);
@@ -192,9 +198,6 @@ print_rate_info(const int rate, const int nsamples, const int maxC, int seed, co
     } else {
         mvprintw(0, center, " -------------------------------- ", rate, nsamples);
         mvprintw(2, center, " ------------[mvc]--------------- ", rate, nsamples);
-    }
-    if(beat) {
-        mvprintw(3, center, " ============ *BEAT ============== ", rate, nsamples);
     }
 }
 
