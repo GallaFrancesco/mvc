@@ -101,6 +101,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 	int statusHeight = 0;
 	int statusCol = 0;
 	bool toggleStatus = true;
+	bool subWindow = false;
     short cnt_over = 0; // in case no data is available for too much
     unsigned int energyThreshold = 0;
     bool beat = false;
@@ -128,37 +129,40 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 #endif
 
     while(!over) {
-		switch((c = wgetch(stdscr))) {
-			case 'q':
-				over = true;
-				break;
-			case ' ':
-				pattern = (pattern + 1) % 6;
-				break;
-			case KEY_UP:
-				statusHeight -= 1;
-				break;
-			case KEY_DOWN:
-				statusHeight += 1;
-				break;
-			case KEY_LEFT:
-				statusCol -= 1;
-				break;
-			case KEY_RIGHT:
-				statusCol += 1;
-				break;
-			case 'r':
-				statusCol = 0;
-				statusHeight = 0;
-				break;
-			case 'h':
-				print_help(maxR,maxC);
-				break;
-			case 't':
-				toggleStatus = (toggleStatus == true) ? false : true;
-				break;
-			default:
-				break;
+        switch((c = wgetch(stdscr))) {
+        case 'q':
+            over = true;
+            break;
+        case ' ':
+            pattern = (pattern + 1) % 6;
+            break;
+        case KEY_UP:
+            statusHeight -= 1;
+            break;
+        case KEY_DOWN:
+            statusHeight += 1;
+            break;
+        case KEY_LEFT:
+            statusCol -= 1;
+            break;
+        case KEY_RIGHT:
+            statusCol += 1;
+            break;
+        case 'r':
+            statusCol = 0;
+            statusHeight = 0;
+            break;
+        case 'h':
+            print_help(maxR,maxC);
+            break;
+        case 't':
+            toggleStatus = (toggleStatus == true) ? false : true;
+            break;
+        case 's':
+            subWindow = (subWindow == true) ? false : true;
+            break;
+        default:
+            break;
 		}
 
         // select on fifo socket
@@ -219,14 +223,16 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 		box(mainwin, 0, 0);
         wrefresh(mainwin);
 
-        box(sub, 0, 0);
-        wrefresh(sub);
+        if(subWindow) {
+            box(sub, 0, 0);
+            wrefresh(sub);
 
-	    getmaxyx(stdscr, maxR, maxC);
+            // refresh sub window
+            wresize(sub, maxR/2, maxC/2);
+            mvwin(sub, maxR/4, maxC/4);
+        }
 
-        // refresh sub window
-        wresize(sub, maxR/2, maxC/2);
-        mvwin(sub, maxR/4, maxC/4);
+        getmaxyx(stdscr, maxR, maxC);
     }
 
 #ifdef STATUS_CHECK
