@@ -79,7 +79,7 @@ print_visual(unsigned int* fftAvg, PATTERN pattern, bool beat)
 }
 
 int
-main_event(int fifo, WINDOW* mainwin)
+main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 {
 #ifdef THREADED
 	pthread_t tid;
@@ -215,10 +215,18 @@ main_event(int fifo, WINDOW* mainwin)
 			print_mpd_status(status, maxC, statusHeight+maxR/6, statusCol);
 		}
 #endif
-		box(mainwin, 0, 0);
         // refresh screen
-        refresh();
+		box(mainwin, 0, 0);
+        wrefresh(mainwin);
+
+        box(sub, 0, 0);
+        wrefresh(sub);
+
 	    getmaxyx(stdscr, maxR, maxC);
+
+        // refresh sub window
+        wresize(sub, maxR/2, maxC/2);
+        mvwin(sub, maxR/4, maxC/4);
     }
 
 #ifdef STATUS_CHECK
@@ -266,14 +274,14 @@ main(int argc, char *argv[])
 	nodelay(stdscr, TRUE);
 
     // space invaders window
-    WINDOW* sub = derwin(mainwin, 40, 20, 0, 0);
+    WINDOW* sub = subwin(mainwin, maxR/2, maxC/2, maxR/4, maxC/4);
 
 	// call the fifo processor
-    int res = main_event(fifo, mainwin);
+    int res = main_event(fifo, mainwin, sub);
 
 	// free resources
 	endwin();
-	delwin(subwin);
+	delwin(sub);
 	delwin(mainwin);
 
 	if(res) fprintf(stderr, "No data in %s\nQuit.\n", MPD_FIFO);
