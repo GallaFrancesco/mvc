@@ -224,7 +224,9 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
         wrefresh(mainwin);
 
         if(subWindow) {
+            print_subw(sub, beat, maxR/2, maxC/2);
             box(sub, 0, 0);
+
             wrefresh(sub);
 
             // refresh sub window

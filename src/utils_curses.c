@@ -125,6 +125,32 @@ print_col(int col, int l, const int maxR, const int maxC, PATTERN pattern, int s
 }
 
 void
+print_subw(WINDOW* sub, const bool beat, const int maxR, const int maxC)
+{
+    int row, col;
+    int color = 5;
+
+	int rr = genrand_int32() % maxR;
+
+	for (row=0; row<maxR; ++row) {
+        for(col=0; col < maxC; ++col) {
+            if(beat &&
+               row <= rr+maxR/4 && row >= rr-maxR/4 ) {
+                mvwaddch(sub, row, col, '#');
+			} else {
+                if(col % 2 == 0) {
+                    mvwaddch(sub, row, col, '.');
+                } else {
+                    mvwaddch(sub, row, col, '`');
+                }
+            }
+        }
+	}
+    if(beat) mvprintw(maxR/2, maxC/2, "* CLAP *");
+
+}
+
+void
 print_help(const int maxR, const int maxC)
 {
 	erase();
