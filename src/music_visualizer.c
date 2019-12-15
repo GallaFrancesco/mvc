@@ -265,12 +265,15 @@ main(int argc, char *argv[])
  	cbreak();
 	nodelay(stdscr, TRUE);
 
+    // space invaders window
+    WINDOW* sub = derwin(mainwin, 40, 20, 0, 0);
 
 	// call the fifo processor
     int res = main_event(fifo, mainwin);
 
 	// free resources
 	endwin();
+	delwin(subwin);
 	delwin(mainwin);
 
 	if(res) fprintf(stderr, "No data in %s\nQuit.\n", MPD_FIFO);
