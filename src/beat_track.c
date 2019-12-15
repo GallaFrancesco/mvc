@@ -38,26 +38,37 @@ unsigned int cb_avg(cebuffer *cb)
 {
     unsigned int avg = 0;
     unsigned int i = 0;
+    unsigned int cnt = 0;
 
     for(i=cb->tail; i<cb->head; ++i) {
-        avg += cb->buffer[i % cb->capacity];
+        unsigned int val = cb->buffer[i % cb->capacity];
+        if(val > 0) {
+            cnt++;
+            avg += cb->buffer[i % cb->capacity];
+        }
     }
-    return (int)(avg / cb->count);
+    if(cnt == 0) return 0;
+
+    return (int)(avg / cnt);
 }
 
-int cb_variance(cebuffer *cb)
+double cb_variance(cebuffer *cb)
 {
     double variance = 0;
     unsigned int i = 0;
     unsigned int avg = cb_avg(cb);
+    unsigned int cnt = 0;
 
     for(i=cb->tail; i<cb->head; ++i) {
-        variance += pow(cb->buffer[i % cb->capacity] - avg, 2);
-        fprintf(stderr, "head: %d, tail: %d, i: %d, buffer: %d, avg: %d\t", cb->head, cb->tail, i%cb->capacity, cb->buffer[i % cb->capacity], avg);
-        fprintf(stderr, "variance: %f\n", variance);
+        double val = cb->buffer[i % cb->capacity];
+        if(val > 0) {
+            cnt++;
+            double diff = fabs(val - avg);
+            variance += pow(diff, 2);
+        }
     }
     fprintf(stderr, "variance TOTAL: %f\n", variance / cb->count);
-    return (int)(variance / cb->count);
+    return variance / cb->count;
 }
 
 bool cb_beat(cebuffer *cb, const energy_t item, energy_t* energyThreshold)
@@ -65,9 +76,9 @@ bool cb_beat(cebuffer *cb, const energy_t item, energy_t* energyThreshold)
     bool beat = false;
 
     // compute the avg of the circular buffer up to now
-    *energyThreshold = (int)(-15*cb_variance(cb) + 1.55);
+    *energyThreshold = (unsigned int)cb_avg(cb)*(3/2);
 
-    if(item > *energyThreshold + *energyThreshold/2) {
+    if(item > *energyThreshold) {
         beat = true;
     }
 

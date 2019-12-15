@@ -50,11 +50,12 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
     if(energyBuffer->count > 0) {
         // compute the energy of the samples array
         avgEnergy(fftBuf, nsamples, &avg);
-        fprintf(stderr, "Computed avg: %d\n", avg);
 
         bool beat = cb_beat(energyBuffer, avg, energyThreshold);
         if(beat) {
-            fprintf(stderr, "BEAT!\n");
+            fprintf(stdout, "BEAT!\n");
+        } else {
+            fprintf(stdout, "NO BEAT!\n");
         }
     }
 
