@@ -63,6 +63,7 @@ mvc
 * **Move status panel** (if built with libmpdclient): up / down / left / right keys
 * **Reset status panel position**: r
 * **Toggle status display**: t
+* **Toggle beat display**: s
 * **Print help**: h
 
 ## Configuration
