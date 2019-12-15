@@ -25,7 +25,7 @@ prof:
 	mkdir -p $(LOCPATH)/prof
 	gcc $(SRC) -o $(LOCPATH)/prof/$(NAME)_prof $(CFLAGS) $(LFLAGS) $(LFLAGS_STATUS) -pg
 asan:
-	gcc $(SRC) -o $(LOCPATH)/debug/$(NAME)_debug_asan $(CFLAGS) $(LFLAGS) $(DEBFLAGS) -fsanitize=address
+	gcc $(SRC) -o $(LOCPATH)/debug/$(NAME)_debug_asan $(CFLAGS) $(LFLAGS) $(DEBFLAGS) $(LFLAGS_STATUS) -fsanitize=address
 clean:
 	rm -f $(LOCPATH)/$(NAME)
 	rm -f $(LOCPATH)/debug/$(NAME)_debug

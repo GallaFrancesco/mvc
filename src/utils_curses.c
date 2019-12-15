@@ -149,7 +149,7 @@ print_help(const int maxR, const int maxC)
 
 #ifdef STATUS_CHECK
 void
-print_rate_info(const int rate, const int nsamples, const int maxC, int seed)
+print_rate_info(const int rate, const int nsamples, const int maxC, int seed, const bool beat)
 {
     int center = (int) maxC/2-18; // adjust to screen center
     int i;
@@ -166,6 +166,9 @@ print_rate_info(const int rate, const int nsamples, const int maxC, int seed)
     } else {
         mvprintw(0, center, " -------------------------------- ", rate, nsamples);
         mvprintw(2, center, " ------------[mvc]--------------- ", rate, nsamples);
+    }
+    if(beat) {
+        mvprintw(3, center, " ============ *BEAT ============== ", rate, nsamples);
     }
 }
 

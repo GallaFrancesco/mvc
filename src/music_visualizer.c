@@ -37,7 +37,7 @@ static int maxC = 0;
 
 void
 process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
-              cebuffer* energyBuffer, int nsamples, unsigned int* energyThreshold)
+              cebuffer* energyBuffer, int nsamples, unsigned int* energyThreshold, bool* beat)
 {
     // fft of samples array
     fast_fft(nsamples, (uint16_t*)buf, fftBuf);
@@ -51,12 +51,7 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
         // compute the energy of the samples array
         avgEnergy(fftBuf, nsamples, &avg);
 
-        bool beat = cb_beat(energyBuffer, avg, energyThreshold);
-        if(beat) {
-            fprintf(stdout, "BEAT!\n");
-        } else {
-            fprintf(stdout, "NO BEAT!\n");
-        }
+        *beat = cb_beat(energyBuffer, avg, energyThreshold);
     }
 
     // insert the current energy sample into the circular buffer
@@ -64,7 +59,7 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
 }
 
 void
-print_visual(unsigned int* fftAvg, PATTERN pattern)
+print_visual(unsigned int* fftAvg, PATTERN pattern, bool beat)
 {
     int i;
 
@@ -108,6 +103,7 @@ main_event(int fifo, WINDOW* mainwin)
 	bool toggleStatus = true;
     short cnt_over = 0; // in case no data is available for too much
     unsigned int energyThreshold = 0;
+    bool beat = false;
 
     // add it to select() set
     FD_ZERO(&set);
@@ -174,7 +170,7 @@ main_event(int fifo, WINDOW* mainwin)
             ret = read(fifo, (uint16_t*)buf, 2*nsamples);
             // process read buffer
 			if(cnt == NICENESS) {
-            	process_fifo(buf, fftBuf, fftAvg, &energyBuffer, nsamples, &energyThreshold);
+            	process_fifo(buf, fftBuf, fftAvg, &energyBuffer, nsamples, &energyThreshold, &beat);
 				cnt = 0;
 			} else {
 				cnt++;
@@ -206,14 +202,14 @@ main_event(int fifo, WINDOW* mainwin)
             // clear screen for printing (only if new data on fifo)
 			if(cnt == NICENESS) {
             	erase();
-				print_visual(fftAvg, pattern);
+				print_visual(fftAvg, pattern, beat);
 			}
         }
 #ifdef STATUS_CHECK
         // print mpd status even if no new data is avaiable
 		if (toggleStatus) {
 			if (status && status->song && status->song->duration_sec) {
-				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec);
+				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, beat);
 				cnt_over = 0;
 			}
 			print_mpd_status(status, maxC, statusHeight+maxR/6, statusCol);

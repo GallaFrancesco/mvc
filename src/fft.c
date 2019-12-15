@@ -108,7 +108,7 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 	for(i=0; i<inLen; i=i+step){
 		maxfreq = 0;
 		for(j=0; j<step; j++){
-			if (fftBuf[i+j] > maxfreq) {
+			if (i+j < inLen && fftBuf[i+j] > maxfreq) {
 				maxfreq = fftBuf[i+j];
 			}
 		}
@@ -126,8 +126,8 @@ average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
 void avgEnergy(unsigned int* fftBuf, const int inLen, unsigned int* energyBuf)
 {
     unsigned int i;
-    for(i=0; i<inLen; ++i) {
+    for(i=0; i<inLen/2; ++i) {
         *energyBuf += pow(fftBuf[i], 2);
     }
-    *energyBuf = (unsigned int)*energyBuf/inLen;
+    *energyBuf = (unsigned int)*energyBuf/(inLen/2);
 }
