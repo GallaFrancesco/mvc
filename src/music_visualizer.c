@@ -64,8 +64,8 @@ print_visual(unsigned int* fftAvg, PATTERN pattern, bool beat)
     int i;
 
     // main loop to print column by column
-    for(i=X_CORRECTION; i<maxC+X_CORRECTION; i++){
-        fftAvg[i] -= Y_CORRECTION; // adjust to display height
+    for(i=0; i<maxC; i++){
+        fftAvg[i] -= (Y_CORRECTION - i/(maxC/8)); // adjust to display height
 
         // check boundaries (respect the boundaries of the screen, otherwise segvs)
         // if they don't, setting them to 1 is a safety measure
@@ -74,7 +74,7 @@ print_visual(unsigned int* fftAvg, PATTERN pattern, bool beat)
         }
 
         // print the column fftAvg[i]
-        print_col(i-X_CORRECTION, fftAvg[i], maxR, maxC, pattern, (int)fftAvg[i]);
+        print_col(i, fftAvg[i], maxR, maxC, pattern, (int)fftAvg[i]);
     }
 }
 
@@ -97,7 +97,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     uint32_t sampleRate = 0;
     int nsamples = N_SAMPLES; // adapt processing to sample rate
     int sEnergyLen = N_SAMPLES;
-	PATTERN pattern = ANOTHER;
+	PATTERN pattern = LINE;
 	int statusHeight = 0;
 	int statusCol = 0;
 	bool toggleStatus = true;
@@ -112,14 +112,14 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 
     // allocate buffers used
     unsigned int* fftBuf= (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
-    unsigned int* fftAvg = (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
+    unsigned int* fftAvg = (unsigned int*)malloc(maxC*sizeof(unsigned int));
     cebuffer energyBuffer;
 
     cb_init(&energyBuffer, 43);
 
 	// set the result buffer to 0s
     memset(fftBuf, 0, N_SAMPLES*sizeof(unsigned int));
-    memset(fftAvg, 0, N_SAMPLES*sizeof(unsigned int));
+    memset(fftAvg, 0, maxC*sizeof(unsigned int));
 
     // open connection to mpd and set alarm to refresh status
 #ifdef STATUS_CHECK

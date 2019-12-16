@@ -96,30 +96,64 @@ fast_fft(const int inLen, uint16_t *sig, unsigned int *fftSig)
   free(outputComponents);
 }
 
-void
-average_signal(unsigned int *fftBuf, int inLen, int max, unsigned int* fftAvg)
+const double upperbound(const double bfreq, const double x)
 {
-	int i, j, step, k=0;
-	unsigned int avg;
-	int maxfreq = 0;
+    return bfreq*pow(2, 1/(2*x));
+}
 
-    // N_SAMPLES / maximum number of columns
-    step = inLen*FOCUS/max;
-	for(i=0; i<inLen; i=i+step){
-		maxfreq = 0;
-		for(j=0; j<step; j++){
-			if (i+j < inLen && fftBuf[i+j] > maxfreq) {
-				maxfreq = fftBuf[i+j];
-			}
-		}
-		fftAvg[k] = maxfreq-step/FOCUS;
+const double lowerbound(const double bfreq, const double x)
+{
+    return bfreq / pow(2, 1/(2*x));
+}
 
-		for(j=1; j<FOCUS; ++j) {
-			fftAvg[k+j] = fftAvg[k];
-		}
-		k += FOCUS;
-	}
+const double next_bfreq(const double bfreq, const double x)
+{
+    return bfreq*pow(2, 1/x);
+}
 
+
+// average fftBuf using a logarithmic scale for bins, to respect octaves
+void
+average_signal(unsigned int *fftBuf, const int inLen, const int max, unsigned int* fftAvg)
+{
+	int i = 0;
+    int j = 0;
+    int amp = 0;
+    int first = 0;
+    int last = 1;
+    int oratio = 24;
+    double f = 80;
+    int div = 43;
+
+    while(last <= inLen/2) {
+
+        int prev = first;
+        first = floor(lowerbound(f, oratio) / div);
+
+        if(first <= prev) {
+            f = next_bfreq(f, oratio);
+            continue;
+        }
+
+        last = ceil(upperbound(f, oratio) / div);
+        if(last == first) first--;
+
+        for(j=first; j<last; ++j) {
+            amp += fftBuf[j];
+        }
+
+        const int val = amp/abs(last-first);
+        for(int j=i; j<i+FOCUS; ++j) {
+            if(j < max) fftAvg[j] = val;
+        }
+
+        //fprintf(stderr, "%d: %d, first: %d, f: %f, last: %d\n", i, fftAvg[i], first, f, last);
+
+        amp = 0;
+        i += FOCUS;
+        if(i > max) break;
+        f = next_bfreq(f, oratio);
+    }
 }
 
 // compute the average energy of a sample array (in amplitude form)

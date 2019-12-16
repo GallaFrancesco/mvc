@@ -73,7 +73,7 @@ static char defDBlocation[] = "~/.mpd/mpd.db";
 
 // subtracted to each component (visualized column)
 // adjust according to screen height
-#define Y_CORRECTION 25
+#define Y_CORRECTION 35
 
 // adjust lateral shift on screen
 // some optimal values are provided
