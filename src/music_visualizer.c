@@ -37,14 +37,15 @@ static int maxC = 0;
 
 void
 process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
-              cebuffer* energyBuffer, int nsamples, unsigned int* energyThreshold, bool* beat)
+              cebuffer* energyBuffer, int nsamples, unsigned int* energyThreshold, bool* beat,
+              const double basefreq, const int oratio)
 {
     // fft of samples array
     fast_fft(nsamples, (uint16_t*)buf, fftBuf);
 
     // computes an average of the signals in fftBuf
     // based on the number of columns of the screen
-    average_signal(fftBuf, nsamples, maxC, fftAvg);
+    average_signal(fftBuf, nsamples, maxC, basefreq, oratio, fftAvg);
 
     unsigned int avg = 0;
     if(energyBuffer->count > 0) {
@@ -65,7 +66,7 @@ print_visual(unsigned int* fftAvg, PATTERN pattern, bool beat)
 
     // main loop to print column by column
     for(i=0; i<maxC; i++){
-        fftAvg[i] -= (Y_CORRECTION - i/(maxC/8)); // adjust to display height
+        fftAvg[i] -= (Y_CORRECTION - i/(maxC/16)); // adjust to display height
 
         // check boundaries (respect the boundaries of the screen, otherwise segvs)
         // if they don't, setting them to 1 is a safety measure
@@ -105,6 +106,8 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     short cnt_over = 0; // in case no data is available for too much
     unsigned int energyThreshold = 0;
     bool beat = false;
+    double basefreq = 120;
+    int oratio = 12;
 
     // add it to select() set
     FD_ZERO(&set);
@@ -137,10 +140,10 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
             pattern = (pattern + 1) % 6;
             break;
         case KEY_UP:
-            statusHeight -= 1;
+            statusHeight += 1;
             break;
         case KEY_DOWN:
-            statusHeight += 1;
+            statusHeight -= 1;
             break;
         case KEY_LEFT:
             statusCol -= 1;
@@ -158,8 +161,28 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
         case 't':
             toggleStatus = (toggleStatus == true) ? false : true;
             break;
-        case 's':
+        case 'b':
             subWindow = (subWindow == true) ? false : true;
+            break;
+        case 'f':
+            if(basefreq <= 20) break;
+            if(basefreq < 250) basefreq -= 2;
+            else if(basefreq >= 150 && basefreq < 2000) basefreq -= 20;
+            else basefreq -= 200;
+            break;
+        case 'F':
+            if(basefreq >= 22100) break; 
+            if(basefreq < 250) basefreq += 2;
+            else if(basefreq >= 150 && basefreq < 2000) basefreq += 20;
+            else basefreq += 200;
+            break;
+        case 'o':
+            if(oratio <= 1) break;
+            oratio -= 1;
+            break;
+        case 'O':
+            if(oratio >= 64) break; 
+            oratio += 1;
             break;
         default:
             break;
@@ -174,7 +197,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
             ret = read(fifo, (uint16_t*)buf, 2*nsamples);
             // process read buffer
 			if(cnt == NICENESS) {
-            	process_fifo(buf, fftBuf, fftAvg, &energyBuffer, nsamples, &energyThreshold, &beat);
+            	process_fifo(buf, fftBuf, fftAvg, &energyBuffer, nsamples, &energyThreshold, &beat, basefreq, oratio);
 				cnt = 0;
 			} else {
 				cnt++;
@@ -213,10 +236,10 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
         // print mpd status even if no new data is avaiable
 		if (toggleStatus) {
 			if (status && status->song && status->song->duration_sec) {
-				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, beat);
+				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, basefreq, oratio);
 				cnt_over = 0;
 			}
-			print_mpd_status(status, maxC, maxR/2-statusHeight-2, statusCol);
+			print_mpd_status(status, maxC, maxR/6-statusHeight-2, statusCol);
 		}
 #endif
         // refresh screen

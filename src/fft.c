@@ -114,16 +114,15 @@ const double next_bfreq(const double bfreq, const double x)
 
 // average fftBuf using a logarithmic scale for bins, to respect octaves
 void
-average_signal(unsigned int *fftBuf, const int inLen, const int max, unsigned int* fftAvg)
+average_signal(unsigned int *fftBuf, const int inLen, const int max, const double bf, const int oratio, unsigned int* fftAvg)
 {
 	int i = 0;
     int j = 0;
     int amp = 0;
     int first = 0;
     int last = 1;
-    int oratio = 24;
-    double f = 80;
     int div = 43;
+    double f = bf;
 
     while(last <= inLen/2) {
 
@@ -147,7 +146,7 @@ average_signal(unsigned int *fftBuf, const int inLen, const int max, unsigned in
             if(j < max) fftAvg[j] = val;
         }
 
-        //fprintf(stderr, "%d: %d, first: %d, f: %f, last: %d\n", i, fftAvg[i], first, f, last);
+        /* fprintf(stderr, "%d: %d, first: %d, f: %f, last: %d\n", i, fftAvg[i], first, f, last); */
 
         amp = 0;
         i += FOCUS;

@@ -73,13 +73,13 @@ static char defDBlocation[] = "~/.mpd/mpd.db";
 
 // subtracted to each component (visualized column)
 // adjust according to screen height
-#define Y_CORRECTION 35
+#define Y_CORRECTION 40
 
 // adjust lateral shift on screen
 // some optimal values are provided
 // adjust based on terminal dimensions
-/* #define X_CORRECTION 0   // 1280x1024 screens (5:4) */
-#define X_CORRECTION 8 // 1920x1080 screens (16:9)
+#define X_CORRECTION 1   // 1280x1024 screens (5:4)
+/* #define X_CORRECTION 8 // 1920x1080 screens (16:9) */
 
 /* =========== ALSA Support (WIP) ============ */
 

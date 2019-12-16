@@ -128,8 +128,8 @@ void
 print_subw(WINDOW* sub, const bool beat, const int maxR, const int maxC)
 {
     int row, col;
-    int color = 5;
-
+    int bcolor = 6;
+    int ncolor = 0;
 	int rr = genrand_int32() % maxR/3;
 
     rr += maxR/3;
@@ -149,9 +149,12 @@ print_subw(WINDOW* sub, const bool beat, const int maxR, const int maxC)
             }
         }
 	}
+
+    wcolor_set(sub, bcolor, NULL);
     mvwprintw(sub, 1, maxC/2-6, " ---------- ");
     mvwprintw(sub, 2, maxC/2-6, " || BEAT || ");
     mvwprintw(sub, 3, maxC/2-6, " ---------- ");
+    wcolor_set(sub, ncolor, NULL);
 
 }
 
@@ -165,15 +168,19 @@ print_help(const int maxR, const int maxC)
 	mvprintw(2, 0, "Configuration: see src/settings.h");
 	mvprintw(4, 0, "Keybindings:");
     color_set(3, NULL);
-	mvprintw(5, 0, "* Quit: q");
-	mvprintw(6, 0, "* Change drawing mode (style): Space bar");
-	mvprintw(7, 0, "* Move status panel (if built with libmpdclient): up / down / left / right keys");
-	mvprintw(8, 0, "* Reset status panel position: r");
-	mvprintw(9, 0, "* Toggle status display: t");
-	mvprintw(10, 0, "* Toggle beat display: s");
-	mvprintw(11, 0, "* Print this help: h");
+	mvprintw(5, 0, "* Quit: \t\t\t\t\t\tq");
+	mvprintw(6, 0, "* Change drawing mode (style): \t\t\t\tSpace bar");
+	mvprintw(7, 0, "* Move status panel (if built with libmpdclient): \tup / down / left / right keys");
+	mvprintw(8, 0, "* Reset status panel position: \t\t\t\tr");
+	mvprintw(9, 0, "* Toggle status display: \t\t\t\tt");
+	mvprintw(10, 0, "* Toggle beat display: \t\t\t\t\tb");
+	mvprintw(11, 0, "* Increase base frequency of logarithmic bins: \t\tF");
+	mvprintw(12, 0, "* Decrease base frequency of logarithmic bins: \t\tf");
+	mvprintw(13, 0, "* Decrease octave divider of logarithmic bins: \t\tO");
+	mvprintw(14, 0, "* Increase octave divider of logarithmic bins: \t\to");
+	mvprintw(15, 0, "* Print this help: \t\t\t\t\th");
     color_set(1, NULL);
-	mvprintw(12, 0, "--> Press any key to continue.");
+	mvprintw(16, 0, "--> Press any key to continue.");
 	timeout(-1);
 	getch();
 	timeout(0);
@@ -181,23 +188,24 @@ print_help(const int maxR, const int maxC)
 
 #ifdef STATUS_CHECK
 void
-print_rate_info(const int rate, const int nsamples, const int maxC, int seed, const bool beat)
+print_rate_info(const int rate, const int nsamples, const int maxC, int seed, const double basefreq, const int oratio)
 {
-    int center = (int) maxC/2-18; // adjust to screen center
+    int center = (int) maxC/2-33; // adjust to screen center
     int i;
     srand(seed);
     color_set(rand() % 7, NULL);
 
-    mvprintw(1, center, " || rate: %d - samples: %d || ", rate, nsamples);
-    if (nsamples != 512 && rate > 0) {
-        mvprintw(0, center, " --------------------------------- ", rate, nsamples);
-        mvprintw(2, center, " -------------[mvc]--------------- ", rate, nsamples);
-    } else if (rate == 0) {
-        mvprintw(0, center, " ----------------------------- ", rate, nsamples);
-        mvprintw(2, center, " -----------[mvc]------------- ", rate, nsamples);
+    mvprintw(1, center, " || rate: %d - samples: %d - base freq: %.0f Hz - 1/%d octave || ", rate, nsamples, basefreq, oratio);
+    if (nsamples != 512 && rate > 0 && basefreq < 100 && oratio >= 10) {
+        mvprintw(2, center, " ------------------------------[mvc]------------------------------- ");
+    } else if (oratio < 10 && basefreq >= 100) {
+        mvprintw(2, center, " ------------------------------[mvc]------------------------------- ");
+    } else if (oratio < 10 && basefreq < 100) {
+        mvprintw(2, center, " ------------------------------[mvc]------------------------------ ");
+    } else if (basefreq >= 100) {
+        mvprintw(2, center, " ------------------------------[mvc]-------------------------------- ");
     } else {
-        mvprintw(0, center, " -------------------------------- ", rate, nsamples);
-        mvprintw(2, center, " ------------[mvc]--------------- ", rate, nsamples);
+        mvprintw(2, center, " ------------------------------[mvc]------------------------------- ");
     }
 }
 

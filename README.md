@@ -59,13 +59,17 @@ mvc
 
 ### Keybindings
 
-* **Quitting**: q.
-* **Change drawing mode (style)**: Space bar
-* **Move status panel** (if built with libmpdclient): up / down / left / right keys
-* **Reset status panel position**: r
-* **Toggle status display**: t
-* **Toggle beat display**: s
-* **Print help**: h
+* Quit:                                                 **q**
+* Change drawing mode (style):                          **Space bar**
+* Move status panel (if built with libmpdclient):       **up / down / left / right keys**
+* Reset status panel position:                          **r**
+* Toggle status display:                                **t**
+* Toggle beat display:                                  **b**
+* Increase base frequency of logarithmic bins:          **F**
+* Decrease base frequency of logarithmic bins:          **f**
+* Decrease octave divider of logarithmic bins:          **O**
+* Increase octave divider of logarithmic bins:          **o**
+* Print this help:                                      **h**
 
 ## Configuration
 
