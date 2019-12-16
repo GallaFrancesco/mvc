@@ -106,8 +106,8 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     short cnt_over = 0; // in case no data is available for too much
     unsigned int energyThreshold = 0;
     bool beat = false;
-    double basefreq = 120;
-    int oratio = 12;
+    double basefreq = 80;
+    int oratio = 24;
 
     // add it to select() set
     FD_ZERO(&set);

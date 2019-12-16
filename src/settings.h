@@ -39,7 +39,7 @@ static char defDBlocation[] = "~/.mpd/mpd.db";
 // EMPTY == 0 (char is not set)
 //
 // PRESET 1: vertical sharp
-#define FULL '|'
+#define FULL '#'
 #define HALFFULL '|'
 #define HALFEMPTY '-'
 #define EMPTY ' '
@@ -69,7 +69,7 @@ static char defDBlocation[] = "~/.mpd/mpd.db";
 
 // define output window
 // roughly corresponds to the number of bars of the display replicated
-#define FOCUS 2
+#define FOCUS 1
 
 // subtracted to each component (visualized column)
 // adjust according to screen height
