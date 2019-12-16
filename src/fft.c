@@ -119,8 +119,8 @@ average_signal(unsigned int *fftBuf, const int inLen, const int max, const doubl
 	int i = 0;
     int j = 0;
     int amp = 0;
-    int first = 0;
-    int last = 1;
+    int first = 1;
+    int last = 2;
     int div = 43;
     double f = bf;
 

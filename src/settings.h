@@ -12,7 +12,7 @@
 // (adjust N_SAMPLES to sample rate of current song)
 // uses N_SAMPLES as maximum for 44100 Hz
 // set to 0 to disable
-#define ADAPTIVE_SAMPLING 1
+#define ADAPTIVE_SAMPLING 0
 
 
 /* =========== MPD Options ============ */
