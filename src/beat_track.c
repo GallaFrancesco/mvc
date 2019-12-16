@@ -1,8 +1,9 @@
 #include "beat_track.h"
 #include "settings.h"
 
-#include <stdio.h>
-
+/**
+ * initialize circular buffer to [capacity] items
+ */
 void cb_init(cebuffer *cb, const int capacity)
 {
     cb->buffer = (energy_t*)malloc(capacity*sizeof(energy_t));
@@ -13,6 +14,9 @@ void cb_init(cebuffer *cb, const int capacity)
     cb->tail = 0;
 }
 
+/**
+ * free and reset buffer
+ */
 void cb_free(cebuffer *cb)
 {
     free(cb->buffer);
@@ -21,7 +25,9 @@ void cb_free(cebuffer *cb)
     cb->tail = 0;
 }
 
-// insert, deleting oldest element if needed
+/**
+ * insert, replacing oldest element if needed
+ */
 void cb_push_back(cebuffer *cb, const energy_t item)
 {
     // insert on head+1
@@ -38,6 +44,9 @@ void cb_push_back(cebuffer *cb, const energy_t item)
     }
 }
 
+/**
+ * compute the average energy in the buffer
+ */
 double cb_avg(cebuffer *cb)
 {
     double avg = 0;
@@ -56,6 +65,9 @@ double cb_avg(cebuffer *cb)
     return avg / cnt;
 }
 
+/**
+ * compute energy variance in the buffer
+ */
 double cb_variance(cebuffer *cb)
 {
     double variance = 0;
@@ -71,11 +83,17 @@ double cb_variance(cebuffer *cb)
             variance += pow(diff, 2);
         }
     }
-    fprintf(stderr, "variance TOTAL: %f\n", variance / cb->count);
     return variance / cb->count;
 }
 
-bool cb_beat(cebuffer *cb, const energy_t item, energy_t* energyThreshold)
+/**
+ * Beat detection entry point (simple/faster algorithm: no variance)
+ * - threshold: compute avg of values, multiply it by a scaling factor
+ * - item > thresold -> beat
+ * - item <= threshold -> no beat
+ * store thresold value to re-use it (TODO improve algorithm)
+ */
+bool cb_beat(cebuffer *cb, const energy_t current, energy_t* energyThreshold)
 {
     bool beat = false;
 
@@ -83,7 +101,7 @@ bool cb_beat(cebuffer *cb, const energy_t item, energy_t* energyThreshold)
     double mult = (double)17/16;
     double et = mult*cb_avg(cb);
 
-    if(item > et) {
+    if(current > et) {
         beat = true;
     }
 
