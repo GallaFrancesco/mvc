@@ -156,7 +156,7 @@ average_signal(unsigned int *fftBuf, const int inLen, const int max, const doubl
     int amp = 0;
     int first = 0;
     int last = 1;
-    int div = 43;
+    int div = 43/(N_SAMPLES/1024); // 1024 samples -> 43 reads / second
     double f = bf;
 
     while(last <= N_SAMPLES/2) {
