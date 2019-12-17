@@ -87,17 +87,20 @@ fast_fft(const int inLen, uint16_t *sig, unsigned int *fftSig)
   cplx *outputComponents;
 
   if(inLen % 2 != 0){
-    fprintf(stderr, "The length of the array MUST be a power of 2.");
-    exit(EXIT_FAILURE);
+      fprintf(stderr, "The length of the array MUST be a power of 2.");
+      exit(EXIT_FAILURE);
   }
   inputComponents = (cplx*)malloc((inLen)*sizeof(cplx));
 
-  for(i=1; i<inLen; i++){
-    inputComponents[i] = sig[i];
+  for(i=1; i<N_SAMPLES; ++i){
+      inputComponents[i] = sig[i];
+  }
+  for(i=N_SAMPLES; i<inLen; ++i) {
+      inputComponents[i] = 0;
   }
 
   outputComponents = _fast_ft(inputComponents, inLen);
-  for(i=0; i<inLen; i++){
+  for(i=0; i<N_SAMPLES; ++i){
     fftSig[i] = amplitude(outputComponents[i], inLen);
   }
 
@@ -156,7 +159,7 @@ average_signal(unsigned int *fftBuf, const int inLen, const int max, const doubl
     int div = 43;
     double f = bf;
 
-    while(last <= inLen/2) {
+    while(last <= N_SAMPLES/2) {
 
         int prev = first;
         first = floor(lowerbound(f, oratio) / div);

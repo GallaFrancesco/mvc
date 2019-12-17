@@ -30,7 +30,7 @@ alarm_status()
 }
 #endif
 
-#define BEATC 25 // experiment with it
+#define PADDING 2
 
 static int maxR = 0;
 static int maxC = 0;
@@ -85,7 +85,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 #ifdef THREADED
 	pthread_t tid;
 #endif
-    uint16_t buf[N_SAMPLES];
+    uint16_t buf[N_SAMPLES*PADDING];
 #ifdef STATUS_CHECK
     struct mpd_connection *session;
     STATUS* status = NULL;
@@ -96,7 +96,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 	int c;
 	int cnt = 0; // used to set resolution (wether to skip / not to skip a read)
     uint32_t sampleRate = 0;
-    int nsamples = N_SAMPLES; // adapt processing to sample rate
+    int nsamples = N_SAMPLES*PADDING; // adapt processing to sample rate, zero-pad
     int sEnergyLen = N_SAMPLES;
 	PATTERN pattern = LINE;
 	int statusHeight = 0;
@@ -106,8 +106,8 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     short cnt_over = 0; // in case no data is available for too much
     unsigned int energyThreshold = 0;
     bool beat = false;
-    double basefreq = 80;
-    int oratio = 24;
+    double basefreq = 20;
+    int oratio = 32;
 
     // add it to select() set
     FD_ZERO(&set);
@@ -194,7 +194,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
             // read data when avaiable
             // adapt to sample rate for buffer processing
             // the first time default to 44100 setting
-            ret = read(fifo, (uint16_t*)buf, 2*nsamples);
+            ret = read(fifo, (uint16_t*)buf, 2*N_SAMPLES);
             // process read buffer
 			if(cnt == NICENESS) {
             	process_fifo(buf, fftBuf, fftAvg, &energyBuffer, nsamples, &energyThreshold, &beat, basefreq, oratio);
@@ -236,7 +236,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
         // print mpd status even if no new data is avaiable
 		if (toggleStatus) {
 			if (status && status->song && status->song->duration_sec) {
-				print_rate_info(sampleRate, nsamples, maxC, status->song->duration_sec, basefreq, oratio);
+				print_rate_info(sampleRate, N_SAMPLES, maxC, status->song->duration_sec, basefreq, oratio);
 				cnt_over = 0;
 			}
 			print_mpd_status(status, maxC, maxR/6-statusHeight-2, statusCol);
