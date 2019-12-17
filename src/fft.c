@@ -1,9 +1,15 @@
 #include "fft.h"
 #include "settings.h"
 
-/* if flag is EVEN (0), it takes only the even elements
- * otherwise if flag is ODD (1) it takes only the odd ones
- */
+/**
+ * FFT algorithm
+*/
+
+/**
+ * split an array
+ * - if flag is EVEN (0), take only even elements
+ * - else if flag is ODD (1) it takes only the odd ones
+*/
 cplx *split_array(cplx *a, const int len, const int flag)
 {
 	int i, cnt = 0;
@@ -18,17 +24,18 @@ cplx *split_array(cplx *a, const int len, const int flag)
 	return ret;
 }
 
-/* recursively compute the fft on an array of complex numbers
+/**
+ * recursively compute the fft on an array of complex numbers
  * splitting the array in two parts each recursion
- */
+*/
 cplx *_fast_ft(cplx *compArray, const int len)
 {
   cplx omegaN, omega;
   cplx *evenA, *oddA, *transformedA;
   int i;
 
-  /*termination*/
-  if(len == 1){
+  // recursive termination
+  if(len == 1) {
     return compArray;
   }
 
@@ -51,17 +58,11 @@ cplx *_fast_ft(cplx *compArray, const int len)
   return transformedA;
 }
 
-void
-print_components(cplx *a, const int len)
-{
-  int i;
-  for(i=0; i<len; i++){
-    /*creal and cimag extract the real and imaginary parts of a[i]*/
-    fprintf(stdout, "%g, %g\n", creal(a[i]), cimag(a[i])); 
-  }
-  fprintf(stdout, "\n");
-}
-
+/**
+ * compute the amplitude of each fft component (cplx)
+ * - amplitude = sqrt((real**2)/nc + (img**2)/nc)
+ * - nc: number of components (samples)
+*/
 unsigned int
 amplitude(cplx c, const unsigned int n)
 {
@@ -71,6 +72,13 @@ amplitude(cplx c, const unsigned int n)
   return round(20*log10(sq)); // dB scale
 }
 
+/**
+ * FFT algorithm entry point
+ * receives an input len, a raw buffer and an output buffer
+ * - computes the FFT of the raw buffer as a complex array
+ * - computes the amplitude of the complex FFT components
+ * - stores the result in the output buffer
+*/
 void
 fast_fft(const int inLen, uint16_t *sig, unsigned int *fftSig)
 {
@@ -96,23 +104,47 @@ fast_fft(const int inLen, uint16_t *sig, unsigned int *fftSig)
   free(outputComponents);
 }
 
+
+/**
+ * ===============================================
+ * Compute logarithmic avg of fft amplitude buffer
+ * ===============================================
+*/
+
+/**
+ * upper frequency bound for current bin
+*/
 const double upperbound(const double bfreq, const double x)
 {
     return bfreq*pow(2, 1/(2*x));
 }
 
+/**
+ * lower frequency bound for current bin
+*/
 const double lowerbound(const double bfreq, const double x)
 {
     return bfreq / pow(2, 1/(2*x));
 }
 
+/**
+ * central (base) frequency of next bin 
+*/
 const double next_bfreq(const double bfreq, const double x)
 {
     return bfreq*pow(2, 1/x);
 }
 
 
-// average fftBuf using a logarithmic scale for bins, to respect octaves
+/**
+ * Average algorithm:
+ * - while (!bin limit reached):
+ * --- compute bin upper and lower bound from bfreq
+ * --- sum each fftBuf[i] for i in (lower, upper)
+ * --- divide by (upper-lower) to get the avg
+ * --- if more than one fftAvg per bin, replicate on FOCUS
+ * --- compute next bfreq
+ */
 void
 average_signal(unsigned int *fftBuf, const int inLen, const int max, const double bf, const int oratio, unsigned int* fftAvg)
 {
@@ -156,7 +188,13 @@ average_signal(unsigned int *fftBuf, const int inLen, const int max, const doubl
     }
 }
 
-// compute the average energy of a sample array (in amplitude form)
+/**
+ * ===================================================
+ * Energy computation for beat tracking (beat_track.h)
+ * ===================================================
+ * Energy = average of the square of the amplitude
+ * stored in fftBuf
+*/
 void avgEnergy(unsigned int* fftBuf, const int inLen, unsigned int* energyBuf)
 {
     unsigned int i;
