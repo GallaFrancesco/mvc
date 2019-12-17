@@ -30,7 +30,7 @@ alarm_status()
 }
 #endif
 
-#define PADDING 2
+#define PADDING 4
 
 static int maxR = 0;
 static int maxC = 0;
@@ -85,7 +85,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 #ifdef THREADED
 	pthread_t tid;
 #endif
-    uint16_t buf[N_SAMPLES*PADDING];
+    uint16_t buf[N_SAMPLES*PADDING] = {0};
 #ifdef STATUS_CHECK
     struct mpd_connection *session;
     STATUS* status = NULL;
