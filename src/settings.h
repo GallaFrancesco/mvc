@@ -8,6 +8,11 @@
 // (POWER OF 2)
 #define N_SAMPLES 2048
 
+// zero-padding of input samples
+// append a number = PADDING*N_SAMPLES of empty samples (0) to the input data
+// higher padding -> more precise FFT peak detection (but heavier computational cost)
+#define PADDING 4
+
 // if adaptive sampling should be used
 // (adjust N_SAMPLES to sample rate of current song)
 // uses N_SAMPLES as maximum for 44100 Hz
