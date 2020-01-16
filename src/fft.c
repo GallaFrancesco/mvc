@@ -2,7 +2,9 @@
 #include "settings.h"
 
 /**
- * FFT algorithm
+ * ===
+ * FFT
+ * ===
 */
 
 /**
@@ -140,7 +142,9 @@ const double next_bfreq(const double bfreq, const double x)
 
 
 /**
- * Average algorithm:
+ * ===================================
+ * Average frequency signal algorithm
+ * ===================================
  * - while (!bin limit reached):
  * --- compute bin upper and lower bound from bfreq
  * --- sum each fftBuf[i] for i in (lower, upper)
@@ -152,12 +156,13 @@ void
 average_signal(unsigned int *fftBuf, const int inLen, const int max, const double bf, const int oratio, unsigned int* fftAvg)
 {
 	int i = 0;
-    int j = 0;
     int amp = 0;
     int first = 0;
     int last = 1;
     int div = 43/(N_SAMPLES/1024); // 1024 samples -> 43 reads / second
     double f = bf;
+    unsigned int noteIdx = 0;
+    unsigned int noteVal = 0;
 
     while(last <= N_SAMPLES/2) {
 
@@ -172,14 +177,19 @@ average_signal(unsigned int *fftBuf, const int inLen, const int max, const doubl
         last = ceil(upperbound(f, oratio) / div);
         if(last == first) first--;
 
-        for(j=first; j<last; ++j) {
+        for(int j=first; j<last; ++j) {
             amp += fftBuf[j];
         }
 
         const int val = amp/abs(last-first);
+        if(val > noteVal && i >= 1) {
+            noteVal = val;
+            noteIdx = i;
+        }
         for(int j=i; j<i+FOCUS; ++j) {
             if(j < max) fftAvg[j] = val;
         }
+
 
         /* fprintf(stderr, "%d: %d, first: %d, f: %f, last: %d\n", i, fftAvg[i], first, f, last); */
 
@@ -188,6 +198,11 @@ average_signal(unsigned int *fftBuf, const int inLen, const int max, const doubl
 
         if(i > max) break;
         f = next_bfreq(f, oratio);
+    }
+
+    for(i=0; i<max; ++i) {
+        if(i == noteIdx) continue; // boost current max (note)
+        else fftAvg[i] -= 5;
     }
 }
 
