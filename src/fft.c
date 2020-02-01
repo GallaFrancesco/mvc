@@ -102,7 +102,7 @@ fast_fft(const int inLen, uint16_t *sig, unsigned int *fftSig)
   }
 
   outputComponents = _fast_ft(inputComponents, inLen);
-  for(i=0; i<N_SAMPLES; ++i){
+  for(i=0; i<N_SAMPLES/4; ++i){
     fftSig[i] = amplitude(outputComponents[i], inLen);
   }
 

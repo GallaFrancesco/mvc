@@ -30,7 +30,7 @@ alarm_status()
 }
 #endif
 
-#define PADDING 4
+#define PADDING 1
 
 static int maxR = 0;
 static int maxC = 0;
@@ -45,7 +45,7 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
 
     // computes an average of the signals in fftBuf
     // based on the number of columns of the screen
-    average_signal(fftBuf, nsamples, maxC, basefreq, oratio, fftAvg);
+    average_signal(fftBuf, nsamples/2, maxC, basefreq, oratio, fftAvg);
 
     unsigned int avg = 0;
     if(energyBuffer->count > 0) {
@@ -114,14 +114,14 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     FD_SET(fifo, &set);
 
     // allocate buffers used
-    unsigned int* fftBuf= (unsigned int*)malloc(N_SAMPLES*sizeof(unsigned int));
+    unsigned int* fftBuf= (unsigned int*)malloc(N_SAMPLES/2*sizeof(unsigned int));
     unsigned int* fftAvg = (unsigned int*)malloc(maxC*sizeof(unsigned int));
     cebuffer energyBuffer;
 
     cb_init(&energyBuffer, 43);
 
 	// set the result buffer to 0s
-    memset(fftBuf, 0, N_SAMPLES*sizeof(unsigned int));
+    memset(fftBuf, 0, (N_SAMPLES/2)*sizeof(unsigned int));
     memset(fftAvg, 0, maxC*sizeof(unsigned int));
 
     // open connection to mpd and set alarm to refresh status
