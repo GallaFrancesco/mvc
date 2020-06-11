@@ -42,7 +42,6 @@ curses_init()
 void
 print_pattern(int col, int row, int l, const int maxR, const int maxC, PATTERN pattern, int seed)
 {
-	bool randc;
 	switch(pattern) {
 		case CURVE:
 			if (row > maxR-l && row < maxR-l/3) { // center of the screen
@@ -191,7 +190,6 @@ void
 print_rate_info(const int rate, const int nsamples, const int maxC, int seed, const double basefreq, const int oratio)
 {
     int center = (int) maxC/2-33; // adjust to screen center
-    int i;
     srand(seed);
     color_set(rand() % 7, NULL);
 

@@ -7,6 +7,7 @@
 // number of samples
 // (POWER OF 2)
 #define N_SAMPLES 2048
+#define PADDING 1
 
 // if adaptive sampling should be used
 // (adjust N_SAMPLES to sample rate of current song)

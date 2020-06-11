@@ -30,8 +30,6 @@ alarm_status()
 }
 #endif
 
-#define PADDING 1
-
 static int maxR = 0;
 static int maxC = 0;
 
@@ -41,7 +39,7 @@ process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
               const double basefreq, const int oratio)
 {
     // fft of samples array
-    fast_fft(nsamples, (uint16_t*)buf, fftBuf);
+    fast_fft((uint16_t*)buf, fftBuf);
 
     // computes an average of the signals in fftBuf
     // based on the number of columns of the screen
@@ -97,7 +95,6 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 	int cnt = 0; // used to set resolution (wether to skip / not to skip a read)
     uint32_t sampleRate = 0;
     int nsamples = N_SAMPLES*PADDING; // adapt processing to sample rate, zero-pad
-    int sEnergyLen = N_SAMPLES;
 	PATTERN pattern = LINE;
 	int statusHeight = 0;
 	int statusCol = 0;
@@ -114,15 +111,15 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     FD_SET(fifo, &set);
 
     // allocate buffers used
-    unsigned int* fftBuf= (unsigned int*)malloc(N_SAMPLES/2*sizeof(unsigned int));
-    unsigned int* fftAvg = (unsigned int*)malloc(maxC*sizeof(unsigned int));
+    unsigned int* fftBuf= (unsigned int*)malloc((N_SAMPLES/2)*sizeof(unsigned int));
+    unsigned int* fftAvg = (unsigned int*)malloc((N_SAMPLES/2)*sizeof(unsigned int));
     cebuffer energyBuffer;
 
     cb_init(&energyBuffer, 43);
 
 	// set the result buffer to 0s
     memset(fftBuf, 0, (N_SAMPLES/2)*sizeof(unsigned int));
-    memset(fftAvg, 0, maxC*sizeof(unsigned int));
+    memset(fftAvg, 0, (N_SAMPLES/2)*sizeof(unsigned int));
 
     // open connection to mpd and set alarm to refresh status
 #ifdef STATUS_CHECK
@@ -213,13 +210,6 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
             // get mpd status
             free_status_st(status);
             status = get_current_status(session);
-            if (status) {
-                if (((sampleRate = status->sampleRate) >= 96000) && ADAPTIVE_SAMPLING) {
-                    nsamples = N_SAMPLES/2;
-                } else if (sampleRate < 96000) {
-                    nsamples = N_SAMPLES;
-                }
-            }
             getstatus = false;
             // set alarm for status refresh
 			alarm(STATUS_REFRESH);
@@ -295,7 +285,6 @@ main(int argc, char *argv[])
 	keypad(stdscr, TRUE); // arrow keys
 #endif
 
-	unsigned long init[4]={0x123, 0x234, 0x345, 0x456}, length=4;
 	init_genrand(time(NULL));
 
 	// get screen properties

@@ -1,5 +1,6 @@
 #include "fft.h"
 #include "settings.h"
+#include <string.h>
 
 /**
  * ===
@@ -16,6 +17,7 @@ cplx *split_array(cplx *a, const int len, const int flag)
 {
 	int i, cnt = 0;
 	cplx *ret = malloc((len/2)*sizeof(cplx));
+    memset(ret, 0, (len/2)*sizeof(cplx));
 
 	if(!ret) return NULL;
 
@@ -46,17 +48,21 @@ cplx *_fast_ft(cplx *compArray, const int len)
   evenA = _fast_ft(split_array(compArray, len, EVEN), len/2);
   oddA = _fast_ft(split_array(compArray, len, ODD), len/2);
 
+  // input components are not needed anymore
+  free(compArray);
+
   /*the final array*/
   transformedA = malloc(len*sizeof(cplx));
+  memset(transformedA, 0, len*sizeof(cplx));
 
   for(i=0; i<(len/2); i++){
     transformedA[i] = evenA[i] + omega*oddA[i];
     transformedA[i+(len/2)] = evenA[i] - omega*oddA[i];
     omega = omegaN*omega;
   }
+
   free(evenA);
   free(oddA);
-  free(compArray);
   return transformedA;
 }
 
@@ -68,10 +74,10 @@ cplx *_fast_ft(cplx *compArray, const int len)
 unsigned int
 amplitude(cplx c, const unsigned int n)
 {
-  // compute a normalized amplitude (power spectrum, not squared)
-  double sq = sqrt(pow(creal(c)/n, 2) + pow(cimag(c)/n, 2));
+    // compute a normalized amplitude (power spectrum, not squared)
+    double sq = sqrt(pow(creal(c)/n, 2) + pow(cimag(c)/n, 2));
 
-  return round(20*log10(sq)); // dB scale
+    return round(20*log10(sq)); // dB scale
 }
 
 /**
@@ -82,31 +88,38 @@ amplitude(cplx c, const unsigned int n)
  * - stores the result in the output buffer
 */
 void
-fast_fft(const int inLen, uint16_t *sig, unsigned int *fftSig)
+fast_fft(uint16_t *sig, unsigned int *fftSig)
 {
-  int i;
-  cplx *inputComponents;
-  cplx *outputComponents;
+    int i,b;
+    cplx *inputComponents;
+    cplx *outputComponents;
+    int inLen = N_SAMPLES*PADDING;
 
-  if(inLen % 2 != 0){
-      fprintf(stderr, "The length of the array MUST be a power of 2.");
-      exit(EXIT_FAILURE);
-  }
-  inputComponents = (cplx*)malloc((inLen)*sizeof(cplx));
+    if(inLen % 2 != 0){
+        fprintf(stderr, "The length of the array MUST be a power of 2.");
+        exit(EXIT_FAILURE);
+    }
 
-  for(i=1; i<N_SAMPLES; ++i){
-      inputComponents[i] = sig[i];
-  }
-  for(i=N_SAMPLES; i<inLen; ++i) {
-      inputComponents[i] = 0;
-  }
+    unsigned int bandSize = inLen/2;
 
-  outputComponents = _fast_ft(inputComponents, inLen);
-  for(i=0; i<N_SAMPLES/4; ++i){
-    fftSig[i] = amplitude(outputComponents[i], inLen);
-  }
+    for(b=0; b<inLen; b+=bandSize) {
 
-  free(outputComponents);
+        inputComponents = (cplx*)malloc((bandSize)*sizeof(cplx));
+        memset(inputComponents, 0, (bandSize)*sizeof(cplx));
+
+        for(i=1; i<bandSize; ++i){
+            inputComponents[i] = sig[b+i];
+        }
+
+        outputComponents = _fast_ft(inputComponents, bandSize);
+
+        for(i=0; i<bandSize; ++i){
+            if(b+i > inLen/4) break;
+            fftSig[b+i] = amplitude(outputComponents[i], bandSize);
+        }
+        free(outputComponents);
+    }
+
 }
 
 

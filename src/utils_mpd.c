@@ -40,9 +40,9 @@ void
 import_var_from_settings ()
 {
 	// import variables from settings.h to be passed to other functions
-	_host = strdup (defHost);
+	_host = strdup(defHost);
 	_port = defPort;
-	_DBlocation = strdup (defDBlocation);
+	_DBlocation = strdup(defDBlocation);
 }
 
 void

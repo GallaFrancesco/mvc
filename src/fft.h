@@ -15,6 +15,6 @@ cplx *split_array(cplx *a, int len, int flag);
 cplx *_fast_ft(cplx *compArray, int len);
 void print_components(cplx *a, int len);
 unsigned int amplitude(cplx c, unsigned int n);
-void fast_fft(int inLen, uint16_t *sig, unsigned int* fftSig);
+void fast_fft(uint16_t *sig, unsigned int* fftSig);
 void average_signal(unsigned int *fftBuf, int inLen, int maxC, const double f, const int oratio, unsigned int *fftAvg);
 void avgEnergy(unsigned int* fftBuf, const int inLen, unsigned int* energyBuf);
