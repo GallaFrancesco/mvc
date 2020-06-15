@@ -203,7 +203,6 @@ average_signal(unsigned int *fftBuf, const int inLen, const int max, const doubl
             if(j < max) fftAvg[j] = val;
         }
 
-
         /* fprintf(stderr, "%d: %d, first: %d, f: %f, last: %d\n", i, fftAvg[i], first, f, last); */
 
         amp = 0;

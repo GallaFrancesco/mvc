@@ -43,33 +43,33 @@ void
 print_pattern(int col, int row, int l, const int maxR, const int maxC, PATTERN pattern, int seed)
 {
 	switch(pattern) {
-		case CURVE:
-			if (row > maxR-l && row < maxR-l/3) { // center of the screen
-				mvaddch(row, col, FULL);
-			} else if (row == maxR-l) { // center of the screen
-				mvaddch(row, col, HALFFULL);
-			} else if (row == maxR-l/3) { // center of the screen
-				mvaddch(row, col, HALFEMPTY);
-			} else if(EMPTY != ' ') {
-				mvaddch(row, col, EMPTY);
-			}
-			break;
+		/* case CURVE: */
+		/* 	if (row > maxR-l && row < maxR-l/3) { // center of the screen */
+		/* 		mvaddch(row, col, FULL); */
+		/* 	} else if (row == maxR-l) { // center of the screen */
+		/* 		mvaddch(row, col, HALFFULL); */
+		/* 	} else if (row == maxR-l/3) { // center of the screen */
+		/* 		mvaddch(row, col, HALFEMPTY); */
+		/* 	} else if(EMPTY != ' ') { */
+		/* 		mvaddch(row, col, EMPTY); */
+		/* 	} */
+		/* 	break; */
 
-		case MOUTH:
-            if (!(row > l && row < maxR-l/3)) { // center of the screen
-                mvaddch(row, col, FULL);
-			} else if(EMPTY != ' ') {
-                mvaddch(row, col, EMPTY);
-            }
-			break;
+		/* case MOUTH: */
+        /*     if (!(row > l && row < maxR-l/3)) { // center of the screen */
+        /*         mvaddch(row, col, FULL); */
+		/* 	} else if(EMPTY != ' ') { */
+        /*         mvaddch(row, col, EMPTY); */
+        /*     } */
+		/* 	break; */
 
-		case MOUTH_REV:
-            if (row > l && row < maxR-l/3) { // center of the screen
-                mvaddch(row, col, FULL);
-			} else if(EMPTY != ' ') {
-                mvaddch(row, col, EMPTY);
-            }
-			break;
+		/* case MOUTH_REV: */
+        /*     if (row > l && row < maxR-l/3) { // center of the screen */
+        /*         mvaddch(row, col, FULL); */
+		/* 	} else if(EMPTY != ' ') { */
+        /*         mvaddch(row, col, EMPTY); */
+        /*     } */
+		/* 	break; */
 		case LINE:
             if (row > (maxR-l) && row < maxR) { // center of the screen
                 mvaddch(row, col, FULL);

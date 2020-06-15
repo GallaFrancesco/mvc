@@ -134,7 +134,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
             over = true;
             break;
         case ' ':
-            pattern = (pattern + 1) % 6;
+            pattern = (pattern + 1) % 3;
             break;
         case KEY_UP:
             statusHeight += 1;
