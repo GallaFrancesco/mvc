@@ -104,7 +104,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     unsigned int energyThreshold = 0;
     bool beat = false;
     double basefreq = 20;
-    int oratio = 32;
+    int oratio = ORATIO;
 
     // add it to select() set
     FD_ZERO(&set);
