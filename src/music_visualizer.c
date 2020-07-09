@@ -93,7 +93,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     int ret;
 	int c;
 	int cnt = 0; // used to set resolution (wether to skip / not to skip a read)
-    uint32_t sampleRate = 0;
+    uint32_t sampleRate = 44100;
     int nsamples = N_SAMPLES*PADDING; // adapt processing to sample rate, zero-pad
 	PATTERN pattern = LINE;
 	int statusHeight = 0;
