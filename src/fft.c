@@ -101,6 +101,7 @@ fast_fft(uint16_t *sig, unsigned int *fftSig)
     }
 
     unsigned int bandSize = inLen/2;
+    float winCoeff = 1; // must be multiplied
 
     for(b=0; b<inLen; b+=bandSize) {
 
@@ -108,7 +109,15 @@ fast_fft(uint16_t *sig, unsigned int *fftSig)
         memset(inputComponents, 0, (bandSize)*sizeof(cplx));
 
         for(i=1; i<bandSize; ++i){
-            inputComponents[i] = sig[b+i];
+            // window (simple function, trapezoidal-shaped)
+            if(i<bandSize/3) {
+                winCoeff = (float)(4*i)/bandSize;
+            } else if(i>(2*bandSize)/3) {
+                winCoeff = (float)(bandSize-i)/bandSize;
+            } else {
+                winCoeff = 1;
+            }
+            inputComponents[i] = sig[b+i]*winCoeff;
         }
 
         outputComponents = _fast_ft(inputComponents, bandSize);
@@ -166,7 +175,12 @@ const double next_bfreq(const double bfreq, const double x)
  * --- compute next bfreq
  */
 void
-average_signal(unsigned int *fftBuf, const int inLen, const int max, const double bf, const int oratio, unsigned int* fftAvg)
+average_signal(unsigned int *fftBuf,
+               const int inLen,
+               const int max,
+               const double bf,
+               const int oratio,
+               unsigned int* fftAvg)
 {
 	int i = 0;
     int amp = 0;
@@ -202,8 +216,6 @@ average_signal(unsigned int *fftBuf, const int inLen, const int max, const doubl
         for(int j=i; j<i+FOCUS; ++j) {
             if(j < max) fftAvg[j] = val;
         }
-
-        /* fprintf(stderr, "%d: %d, first: %d, f: %f, last: %d\n", i, fftAvg[i], first, f, last); */
 
         amp = 0;
         i += FOCUS;

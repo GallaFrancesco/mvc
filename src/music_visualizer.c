@@ -17,6 +17,7 @@
 #include "beat_track.h"
 #include "settings.h"
 #include "mt/mt19937ar.h"
+#include "invaders.h"
 
 #ifdef STATUS_CHECK
 #include <locale.h>
@@ -32,6 +33,11 @@ alarm_status()
 
 static int maxR = 0;
 static int maxC = 0;
+
+int computeStatusHeight(const int statusHDelta)
+{
+    return maxR/6-statusHDelta-2;
+}
 
 void
 process_fifo (uint16_t* buf, unsigned int* fftBuf, unsigned int* fftAvg, \
@@ -96,7 +102,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     uint32_t sampleRate = 44100;
     int nsamples = N_SAMPLES*PADDING; // adapt processing to sample rate, zero-pad
 	PATTERN pattern = LINE;
-	int statusHeight = 0;
+	int statusHDelta = 0;
 	int statusCol = 0;
 	bool toggleStatus = true;
 	bool subWindow = true;
@@ -105,6 +111,8 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     bool beat = false;
     double basefreq = 20;
     int oratio = ORATIO;
+    InvadersGame inv_game;
+    bool playing = false;
 
     // add it to select() set
     FD_ZERO(&set);
@@ -129,61 +137,6 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 #endif
 
     while(!over) {
-        switch((c = wgetch(stdscr))) {
-        case 'q':
-            over = true;
-            break;
-        case ' ':
-            pattern = (pattern + 1) % 3;
-            break;
-        case KEY_UP:
-            statusHeight += 1;
-            break;
-        case KEY_DOWN:
-            statusHeight -= 1;
-            break;
-        case KEY_LEFT:
-            statusCol -= 1;
-            break;
-        case KEY_RIGHT:
-            statusCol += 1;
-            break;
-        case 'r':
-            statusCol = 0;
-            statusHeight = 0;
-            break;
-        case 'h':
-            print_help(maxR,maxC);
-            break;
-        case 't':
-            toggleStatus = (toggleStatus == true) ? false : true;
-            break;
-        case 'b':
-            subWindow = (subWindow == true) ? false : true;
-            break;
-        case 'f':
-            if(basefreq <= 20) break;
-            if(basefreq < 250) basefreq -= 2;
-            else if(basefreq >= 150 && basefreq < 2000) basefreq -= 20;
-            else basefreq -= 200;
-            break;
-        case 'F':
-            if(basefreq >= 22100) break; 
-            if(basefreq < 250) basefreq += 2;
-            else if(basefreq >= 150 && basefreq < 2000) basefreq += 20;
-            else basefreq += 200;
-            break;
-        case 'o':
-            if(oratio <= 1) break;
-            oratio -= 1;
-            break;
-        case 'O':
-            if(oratio >= 64) break; 
-            oratio += 1;
-            break;
-        default:
-            break;
-		}
 
         // select on fifo socket
         // if > 0 means data to be read
@@ -229,7 +182,7 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
 				print_rate_info(sampleRate, N_SAMPLES, maxC, status->song->duration_sec, basefreq, oratio);
 				cnt_over = 0;
 			}
-			print_mpd_status(status, maxC, maxR/6-statusHeight-2, statusCol);
+			print_mpd_status(status, maxC, computeStatusHeight(statusHDelta), statusCol);
 		}
 #endif
         // refresh screen
@@ -248,6 +201,70 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
         }
 
         getmaxyx(stdscr, maxR, maxC);
+
+        switch((c = wgetch(stdscr))) {
+        case 'q':
+            over = true;
+            break;
+        case ' ':
+            pattern = (pattern + 1) % 3;
+            break;
+        case KEY_UP:
+            statusHDelta += 1;
+            break;
+        case KEY_DOWN:
+            statusHDelta -= 1;
+            break;
+        case KEY_LEFT:
+            statusCol -= 1;
+            break;
+        case KEY_RIGHT:
+            statusCol += 1;
+            break;
+        case 'r':
+            statusCol = 0;
+            statusHDelta = 0;
+            break;
+        case 'h':
+            print_help(maxR,maxC);
+            break;
+        case 't':
+            toggleStatus = (toggleStatus == true) ? false : true;
+            break;
+        case 'b':
+            subWindow = (subWindow == true) ? false : true;
+            break;
+        case 'f':
+            if(basefreq <= 20) break;
+            if(basefreq < 250) basefreq -= 2;
+            else if(basefreq >= 150 && basefreq < 2000) basefreq -= 20;
+            else basefreq -= 200;
+            break;
+        case 'F':
+            if(basefreq >= 22100) break; 
+            if(basefreq < 250) basefreq += 2;
+            else if(basefreq >= 150 && basefreq < 2000) basefreq += 20;
+            else basefreq += 200;
+            break;
+        case 'o':
+            if(oratio <= 1) break;
+            oratio -= 1;
+            break;
+        case 'O':
+            if(oratio >= 64) break; 
+            oratio += 1;
+            break;
+        case 'I':
+            inv_game = start_invaders(40, maxR, maxC); // nAliens = 40, TODO settings.h
+            if(inv_game.ready) playing = true;
+            break;
+        case 's':
+            if(playing)
+                inv_game.shoot(computeStatusHeight(statusHDelta), statusCol, inv_game);
+            break;
+        default:
+            break;
+		}
     }
 
 #ifdef STATUS_CHECK

@@ -1,4 +1,4 @@
-SRC = src/settings.h src/fft.c src/utils_curses.c src/music_visualizer.c src/utils_mpd.c src/mt/mt19937ar.c src/beat_track.c
+SRC = src/settings.h src/fft.c src/utils_curses.c src/music_visualizer.c src/utils_mpd.c src/mt/mt19937ar.c src/beat_track.c src/invaders.c
 LOCPATH = ./bin
 INSTALLPATH = /usr/local
 CFLAGS = -O3
