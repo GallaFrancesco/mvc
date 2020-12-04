@@ -17,7 +17,7 @@
 #include "beat_track.h"
 #include "settings.h"
 #include "mt/mt19937ar.h"
-#include "invaders.h"
+/* #include "invaders.h" */
 
 #ifdef STATUS_CHECK
 #include <locale.h>
@@ -111,8 +111,6 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
     bool beat = false;
     double basefreq = 20;
     int oratio = ORATIO;
-    InvadersGame inv_game;
-    bool playing = false;
 
     // add it to select() set
     FD_ZERO(&set);
@@ -253,14 +251,6 @@ main_event(int fifo, WINDOW* mainwin, WINDOW* sub)
         case 'O':
             if(oratio >= 64) break; 
             oratio += 1;
-            break;
-        case 'I':
-            inv_game = start_invaders(40, maxR, maxC); // nAliens = 40, TODO settings.h
-            if(inv_game.ready) playing = true;
-            break;
-        case 's':
-            if(playing)
-                inv_game.shoot(computeStatusHeight(statusHDelta), statusCol, inv_game);
             break;
         default:
             break;
