@@ -123,7 +123,7 @@ fast_fft(uint16_t *sig, unsigned int *fftSig)
         outputComponents = _fast_ft(inputComponents, bandSize);
 
         for(i=0; i<bandSize; ++i){
-            if(b+i > inLen/4) break;
+            if(b+i > inLen/8) break;
             fftSig[b+i] = amplitude(outputComponents[i], bandSize);
         }
         free(outputComponents);
