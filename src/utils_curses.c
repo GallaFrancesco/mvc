@@ -93,9 +93,9 @@ print_pattern(int col, int row, int l, const int maxR, const int maxC, PATTERN p
 			break;
 		case ANOTHER:
 			if(row >= l+24) {
-				mvaddch(row-maxR/2,col,FULL);
-				mvaddch(maxR/2+maxR-row,col,FULL);
-				mvaddch(maxR/2, col, FULL);
+				mvaddch(-12+row-maxR/2,col,FULL);
+				mvaddch(-12+maxR/2+maxR-row,col,FULL);
+				mvaddch(-12+maxR/2, col, FULL);
 			} else {
 				mvaddch(row,col,EMPTY);
 			}
@@ -114,7 +114,7 @@ print_col(int col, int l, const int maxR, const int maxC, PATTERN pattern, int s
 	int row;
 	int color = 5;
 
-	for (row=0; row<maxR; row++){
+	for (row=maxR-1; row>=0; row--){
         if (col < maxC) {
             color = (color+1) % 6;
             color_set(color, NULL);
