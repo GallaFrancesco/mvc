@@ -237,7 +237,7 @@ print_mpd_status(STATUS* status, const int maxC, const int row, const int moveCo
     } else {
         first_len = strlen(song->artist) + strlen(song->title) + 5; // artist + title
         second_len = strlen(status->state)+18; // state + elapsed
-        third_len = strlen(song->album) + 3; // album
+        if(song->album != NULL) third_len = strlen(song->album) + 3; // album
 
         maxlen = first_len;
         if (second_len > maxlen){

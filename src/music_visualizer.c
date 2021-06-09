@@ -78,7 +78,6 @@ print_visual(unsigned int* fftAvg, PATTERN pattern, bool beat)
             fftAvg[i] = 1;
         }
 
-        // print the column fftAvg[i]
         print_col(i, fftAvg[i], maxR, maxC, pattern, (int)fftAvg[i]);
     }
 }
